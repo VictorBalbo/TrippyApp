@@ -1,60 +1,82 @@
 import { Text, type TextProps, StyleSheet } from 'react-native';
+import { useThemeColor } from '@/hooks/useTheme';
+import { Theme } from '@/constants/Theme';
 
-import { useThemeColor } from '@/hooks/useThemeColor';
+export enum TextType {
+  Default = 'default',
+  Title = 'title',
+  Bold = 'bold',
+  Subtitle = 'subtitle',
+  Link = 'link',
+  Small = 'small',
+}
 
 export type ThemedTextProps = TextProps & {
-  lightColor?: string;
-  darkColor?: string;
-  type?: 'default' | 'title' | 'defaultSemiBold' | 'subtitle' | 'link';
+  type?: TextType;
 };
 
 export function ThemedText({
   style,
-  lightColor,
-  darkColor,
-  type = 'default',
+  type = TextType.Default,
   ...rest
 }: ThemedTextProps) {
-  const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
-
-  return (
-    <Text
-      style={[
-        { color },
-        type === 'default' ? styles.default : undefined,
-        type === 'title' ? styles.title : undefined,
-        type === 'defaultSemiBold' ? styles.defaultSemiBold : undefined,
-        type === 'subtitle' ? styles.subtitle : undefined,
-        type === 'link' ? styles.link : undefined,
-        style,
-      ]}
-      {...rest}
-    />
-  );
+  let color;
+  let typeStyle;
+  switch (type) {
+    case 'default':
+      color = useThemeColor('text');
+      typeStyle = styles.default;
+      break;
+    case 'title':
+      color = useThemeColor('text');
+      typeStyle = styles.title;
+      break;
+    case 'bold':
+      color = useThemeColor('text');
+      typeStyle = styles.semiBold;
+      break;
+    case 'subtitle':
+      color = useThemeColor('text');
+      typeStyle = styles.subtitle;
+      break;
+    case 'link':
+      color = useThemeColor('link');
+      typeStyle = styles.link;
+      break;
+    case 'small':
+      color = useThemeColor('helperText');
+      typeStyle = styles.small;
+      break;
+  }
+  return <Text style={[{ color }, typeStyle, style]} {...rest} />;
 }
 
 const styles = StyleSheet.create({
   default: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: Theme.base.textSize,
+    lineHeight: Theme.base.textSize * 1.5,
   },
-  defaultSemiBold: {
-    fontSize: 16,
-    lineHeight: 24,
+  semiBold: {
+    fontSize: Theme.base.textSize,
+    lineHeight: Theme.base.textSize * 1.5,
     fontWeight: '600',
   },
   title: {
-    fontSize: 32,
+    fontSize: Theme.base.textSize * 2,
+    lineHeight: Theme.base.textSize * 2,
     fontWeight: 'bold',
-    lineHeight: 32,
   },
   subtitle: {
     fontSize: 20,
+    lineHeight: 24,
     fontWeight: 'bold',
   },
   link: {
-    lineHeight: 30,
-    fontSize: 16,
-    color: '#0a7ea4',
+    fontSize: Theme.base.textSize,
+    lineHeight: Theme.base.textSize * 1.5,
+  },
+  small: {
+    fontSize: Theme.base.textSize * 0.75,
+    lineHeight: Theme.base.textSize,
   },
 });
