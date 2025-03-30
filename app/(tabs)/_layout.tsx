@@ -1,15 +1,31 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
-import { Platform } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Keyboard, Platform } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
+import { IconSymbol } from '@/components/ui/Icon/IconSymbol';
+import TabBarBackground from '@/components/ui/TabBar/TabBarBackground';
 import { useThemeColor } from '@/hooks/useTheme';
 
 export default function TabLayout() {
   const activeTintColor = useThemeColor('activeTint');
   const inactiveTintColor = useThemeColor('inactiveTint');
+
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () =>
+      setKeyboardVisible(true)
+    );
+    const hideSubscription = Keyboard.addListener('keyboardDidHide', () =>
+      setKeyboardVisible(false)
+    );
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
 
   return (
     <Tabs
@@ -24,7 +40,9 @@ export default function TabLayout() {
             // Use a transparent background on iOS to show the blur effect
             position: 'absolute',
           },
-          default: {},
+          android: {
+            display: isKeyboardVisible ? "none" : "flex",
+          },
         }),
       }}
     >
