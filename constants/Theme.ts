@@ -23,17 +23,18 @@ export type ThemeScheme = {
 };
 
 export const Colors = {
-  whiteLight: '#fafafa',
+  whiteLight: '#ffffff',
   white: '#f0f0f0',
   whiteDeep: '#e4e4e7',
 
   gray: '#73737C',
 
-  blackLight: '#121212',
-  black: '#292929',
+  blackLight: '#313133',
+  black: '#1B1B1B',
   blackDeep: '#000000',
 
   blue: '#007AFF',
+  yellow: "#ffcc00",
 };
 
 export const Theme: ThemeScheme = {
@@ -63,7 +64,7 @@ export const Theme: ThemeScheme = {
   base: {
     smallSpacing: 8,
     largeSpacing: 16,
-    borderRadius: 12,
+    borderRadius: 8,
     textSize: 16,
   },
 };
