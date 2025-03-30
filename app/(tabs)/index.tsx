@@ -1,63 +1,124 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { StyleSheet } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { TextType, ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import PlaceDetails from '../views/PlaceDetails';
 
 export default function HomeScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }
-    >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type={TextType.Title}>Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type={TextType.Subtitle}>Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit{' '}
-          <ThemedText type={TextType.Bold}>app/(tabs)/index.tsx</ThemedText> to
-          see changes. Press{' '}
-          <ThemedText type={TextType.Bold}>
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type={TextType.Subtitle}>Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this
-          starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type={TextType.Subtitle}>
-          Step 3: Get a fresh start
-        </ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type={TextType.Bold}>npm run reset-project</ThemedText> to
-          get a fresh <ThemedText type={TextType.Bold}>app</ThemedText>{' '}
-          directory. This will move the current{' '}
-          <ThemedText type={TextType.Bold}>app</ThemedText> to{' '}
-          <ThemedText type={TextType.Bold}>app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
-  );
+  ///TODO: Remove this
+  const place = {
+    id: 'ChIJjx37cOxv5kcRPWQuEW5ntdk',
+    name: 'Arc de Triomphe',
+    description:
+      "The Arc de Triomphe is an iconic triumphal arch located in the 8th arrondissement district of Paris. It was constructed between 1806 and 1836 to honor Napoleon's military victories during the first French Empire. The monument stands at 164 feet tall and 148 feet wide, adorned with intricate designs on its four arches.",
+    categories: [
+      'Monument',
+      'Cultural Landmark',
+      'Museum',
+      'Tourist Attraction',
+    ],
+    address: 'Pl. Charles de Gaulle, 75008 Paris, France',
+    vicinity: 'Pl. Charles de Gaulle, Paris',
+    rating: 4.7,
+    website: 'https://www.paris-arc-de-triomphe.fr/',
+    phoneNumber: '+33 1 55 37 73 77',
+    images: [
+      'XhFm0syCyHmwN1c2aaXmaHhINIJ9Dm21',
+      'QkWQ8K9m8E74ELy0UEMixCOLogagtTUp',
+      'TkhIfLE627XKz90H5P5R5xfBYRziCAdo',
+      'Q0TtLxXMSgxjOyBbEF3QMr15YE8sYjHR',
+      'xMVFl4Sd530JRNBbYgSnkPTVlf5mvrLv',
+    ],
+    businessStatus: 'OPERATIONAL',
+    openingHours: {
+      weekday_text: [
+        'Monday: 10 AM–10:30 PM',
+        'Tuesday: 11 AM–10:30 PM',
+        'Wednesday: 10 AM–10:30 PM',
+        'Thursday: 10 AM–10:30 PM',
+        'Friday: 10 AM–10:30 PM',
+        'Saturday: 10 AM–10:30 PM',
+        'Sunday: 10 AM–10:30 PM',
+      ],
+      periods: [
+        {
+          open: {
+            day: 0,
+            time: '1000',
+          },
+          close: {
+            day: 0,
+            time: '2230',
+          },
+        },
+        {
+          open: {
+            day: 1,
+            time: '1000',
+          },
+          close: {
+            day: 1,
+            time: '2230',
+          },
+        },
+        {
+          open: {
+            day: 2,
+            time: '1100',
+          },
+          close: {
+            day: 2,
+            time: '2230',
+          },
+        },
+        {
+          open: {
+            day: 3,
+            time: '1000',
+          },
+          close: {
+            day: 3,
+            time: '2230',
+          },
+        },
+        {
+          open: {
+            day: 4,
+            time: '1000',
+          },
+          close: {
+            day: 4,
+            time: '2230',
+          },
+        },
+        {
+          open: {
+            day: 5,
+            time: '1000',
+          },
+          close: {
+            day: 5,
+            time: '2230',
+          },
+        },
+        {
+          open: {
+            day: 6,
+            time: '1000',
+          },
+          close: {
+            day: 6,
+            time: '2230',
+          },
+        },
+      ],
+    },
+    mapsUrl:
+      'https://maps.google.com/?ftid=0x47e66fec70fb1d8f:0xd9b5676e112e643d',
+    coordinates: {
+      lat: 48.8737917,
+      lng: 2.2950274999999998,
+    },
+  };
+  return <PlaceDetails place={place} />;
 }
 
 const styles = StyleSheet.create({
@@ -69,12 +130,5 @@ const styles = StyleSheet.create({
   stepContainer: {
     gap: 8,
     marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
   },
 });
