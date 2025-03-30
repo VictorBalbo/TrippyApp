@@ -15,9 +15,9 @@ export function ThemedView({
 }: ThemedViewProps) {
   let backgroundColor;
   if (background) {
-    backgroundColor = useThemeColor("background");
+    backgroundColor = useThemeColor('background');
   } else if (softBackground) {
-    backgroundColor = useThemeColor("backgroundSoft");
+    backgroundColor = useThemeColor('backgroundSoft');
   }
 
   return <View style={[{ backgroundColor }, style]} {...otherProps} />;

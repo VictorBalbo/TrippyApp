@@ -13,6 +13,18 @@ const MAPPING = {
   'paperplane.fill': 'send',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
+  'chevron.down': 'keyboard-arrow-down',
+  'chevron.up': 'keyboard-arrow-up',
+  'star.fill': 'star',
+  'plus': 'add',
+  'globe': 'link',
+  'calendar': 'calendar-month',
+  'dollarsign': 'attach-money',
+  'dollarsign.arrow.circlepath': 'currency-exchange',
+  'info.circle': 'info-outline',
+  'phone': 'phone',
+  'map': 'map',
+  'ticket': 'book-online',
 } as Partial<
   Record<
     import('expo-symbols').SymbolViewProps['name'],

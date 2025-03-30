@@ -15,11 +15,11 @@ export type ThemedTextProps = TextProps & {
   type?: TextType;
 };
 
-export function ThemedText({
+export const ThemedText = ({
   style,
   type = TextType.Default,
   ...rest
-}: ThemedTextProps) {
+}: ThemedTextProps) => {
   let color;
   let typeStyle;
   switch (type) {
@@ -49,34 +49,34 @@ export function ThemedText({
       break;
   }
   return <Text style={[{ color }, typeStyle, style]} {...rest} />;
-}
+};
 
 const styles = StyleSheet.create({
   default: {
     fontSize: Theme.base.textSize,
-    lineHeight: Theme.base.textSize * 1.5,
+    lineHeight: Theme.base.textSize * 1.25,
   },
   semiBold: {
     fontSize: Theme.base.textSize,
-    lineHeight: Theme.base.textSize * 1.5,
+    lineHeight: Theme.base.textSize * 1.25,
     fontWeight: '600',
   },
   title: {
     fontSize: Theme.base.textSize * 2,
-    lineHeight: Theme.base.textSize * 2,
+    lineHeight: Theme.base.textSize * 2.5,
     fontWeight: 'bold',
   },
   subtitle: {
-    fontSize: 20,
-    lineHeight: 24,
+    fontSize: Theme.base.textSize * 1.5,
+    lineHeight: Theme.base.textSize * 1.875,
     fontWeight: 'bold',
   },
   link: {
     fontSize: Theme.base.textSize,
-    lineHeight: Theme.base.textSize * 1.5,
+    lineHeight: Theme.base.textSize * 1.25,
   },
   small: {
     fontSize: Theme.base.textSize * 0.75,
-    lineHeight: Theme.base.textSize,
+    lineHeight: Theme.base.textSize * 0.875,
   },
 });
