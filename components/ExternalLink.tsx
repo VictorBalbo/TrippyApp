@@ -22,7 +22,6 @@ export function ExternalLink({
       href={href as ExternalPathString}
       onPress={async (event) => {
         if (Platform.OS !== 'web' && behavior === "inApp") {
-          console.log(href, href.startsWith('tel:'));
           // Prevent the default behavior of linking to the default browser on native.
           event.preventDefault();
           // Open the link in an in-app browser.

@@ -1,27 +1,30 @@
-import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-} from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Slot } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import * as NavigationBar from 'expo-navigation-bar';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import 'react-native-reanimated';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { TripProvider } from '@/hooks/useTrip';
+import Map from '@/components/Map';
+import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { Platform, StyleSheet } from 'react-native';
+import { PlaceProvider } from '@/hooks/usePlaceContext';
+import { ThemedView } from '@/components/ui/ThemedView';
+import { useThemeColor, useThemeProperty } from '@/hooks/useTheme';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
-  const theme = colorScheme === 'light' ? DefaultTheme : DarkTheme;
-
   const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    SpaceMono: require('@/assets/fonts/SpaceMono-Regular.ttf'),
   });
+
+  if (Platform.OS === 'android') {
+    const background = useThemeColor('background')
+    NavigationBar.setBackgroundColorAsync(background);
+  }
 
   useEffect(() => {
     if (loaded) {
@@ -34,20 +37,47 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider value={theme}>
+    <PlaceProvider>
       <TripProvider>
-        <Stack>
-          <Stack.Screen
-            name="(tabs)"
-            options={{
-              headerShown: false,
-              navigationBarColor: theme.colors.card,
-            }}
-          />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style="auto" />
+        <GestureHandlerRootView style={styles.container}>
+          <Map />
+
+          <BottomSheet
+            snapPoints={['20%', '50%', '90%']}
+            enableDynamicSizing={false}
+            handleComponent={null}
+            backgroundStyle={styles.viewContainer}
+          >
+            <ThemedView softBackground style={[styles.handleIndicator]} />
+            <BottomSheetScrollView style={styles.viewContainer}>
+              <Slot />
+            </BottomSheetScrollView>
+          </BottomSheet>
+          <StatusBar style="auto" />
+        </GestureHandlerRootView>
       </TripProvider>
-    </ThemeProvider>
+    </PlaceProvider>
   );
 }
+
+const smallSpacing = useThemeProperty('smallSpacing');
+const borderRadius = useThemeProperty('borderRadius');
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  viewContainer: {
+    borderTopLeftRadius: borderRadius * 3,
+    borderTopRightRadius: borderRadius * 3,
+  },
+  handleIndicator: {
+    width: 40,
+    height: 4,
+    zIndex: 1,
+    borderRadius: borderRadius,
+    position: 'absolute',
+    top: smallSpacing,
+    alignSelf: 'center',
+  },
+});

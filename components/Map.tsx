@@ -1,14 +1,19 @@
-import Map, { Marker } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import { StyleSheet } from 'react-native';
 import { useTripContext } from '@/hooks/useTrip';
 import { useEffect, useRef, useState } from 'react';
+import { usePlaceContext } from '@/hooks/usePlaceContext';
+import { useRouter } from 'expo-router';
 
-const MapView = () => {
+const Map = () => {
   const { activities, destinations, housings } = useTripContext();
-  const mapRef = useRef<Map | null>(null);
+  const { setPlaceId } = usePlaceContext();
+  const router = useRouter
+  ()
+  const mapRef = useRef<MapView | null>(null);
   const [visibleMarkers, setVisibleMarkers] = useState<
     ['destinations' | 'activities' | 'housings']
-  >(['destinations']);
+  >(['activities']);
 
   useEffect(() => {
     if (mapRef.current && destinations?.length) {
@@ -25,8 +30,13 @@ const MapView = () => {
     }
   }, [destinations]);
 
+  const onSelectActivity = (id: string) => {
+    setPlaceId(id)
+    router.push('/views/PlaceDetails')
+  }
+
   return (
-    <Map 
+    <MapView 
       ref={mapRef}
       key={activities?.length}
       collapsableChildren={false}
@@ -36,7 +46,9 @@ const MapView = () => {
         activities?.map((a) => (
           <Marker
             key={a.id}
-            title={a.place.name}
+            onSelect={(e) => onSelectActivity(a.place.id)}
+            id={a.id+ '-1'}
+            identifier={a.id+ '-2'}
             coordinate={{
               latitude: a.place.coordinates.lat,
               longitude: a.place.coordinates.lng,
@@ -57,6 +69,7 @@ const MapView = () => {
             }}
             pinColor="blue"
             zIndex={5}
+            onSelect={() => onSelectActivity(d.id)}
           >
             
           </Marker>
@@ -74,7 +87,7 @@ const MapView = () => {
             zIndex={4}
           />
         ))}
-    </Map >
+    </MapView >
   );
 };
 
@@ -84,29 +97,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  pinContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'blue',
-    width: 20,
-    height: 20,
-  },
-  circle: {
-    width: 20,
-    height: 20,
-    borderRadius: 20, // To make it a circle
-    backgroundColor: 'red',
-  },
-  triangle: {
-    width: 0,
-    height: 0,
-    borderLeftWidth: 10,
-    borderRightWidth: 10,
-    borderTopWidth: 20,
-    borderTopColor: 'red',
-    borderLeftColor: 'transparent',
-    borderRightColor: 'transparent',
-  },
 });
 
-export default MapView;
+export default Map;

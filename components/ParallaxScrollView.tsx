@@ -24,7 +24,6 @@ type Props = PropsWithChildren<{
 export const ParallaxScrollView = ({ children, headerImageUrl }: Props) => {
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollOffset = useScrollViewOffset(scrollRef);
-  const bottom = useBottomTabOverflow();
   const headerAnimatedStyle = useAnimatedStyle(() => {
     return {
       transform: [
@@ -55,8 +54,6 @@ export const ParallaxScrollView = ({ children, headerImageUrl }: Props) => {
         <Animated.ScrollView
           ref={scrollRef}
           scrollEventThrottle={16}
-          scrollIndicatorInsets={{ bottom }}
-          contentContainerStyle={{ paddingBottom: bottom }}
         >
           <Animated.View style={[styles.header, headerAnimatedStyle]}>
             {headerImageUrl && (

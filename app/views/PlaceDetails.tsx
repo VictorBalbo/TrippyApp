@@ -1,4 +1,4 @@
-import { StyleSheet, Switch } from 'react-native';
+import { ActivityIndicator, StyleSheet, Switch } from 'react-native';
 import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 import { TextType, ThemedText } from '@/components/ui/ThemedText';
 import { ThemedView } from '@/components/ui/ThemedView';
@@ -17,15 +17,17 @@ import HorizontalDivider from '@/components/ui/HorizontalDivider';
 import { sanitizeUrl } from '@/utils/urlSanitize';
 import { Collapsible } from '@/components/ui/Collapsible';
 import { ThemedSwitch } from '@/components/ui/ThemedSwitch';
+import { usePlaceContext } from '@/hooks/usePlaceContext';
 
-type PlaceDetailsProps = {
-  place: Place;
-};
-
-const PlaceDetails = ({ place }: PlaceDetailsProps) => {
+const PlaceDetails = () => {
   const [price, setPrice] = useState<{ value?: number; currency?: string }>({});
   const [needBooking, setNeedBooking] = useState(false);
   const [booked, setBooked] = useState(false);
+  const { place, loading } = usePlaceContext();
+
+  if (!place || loading) {
+    return <ActivityIndicator />;
+  }
 
   return (
     <ParallaxScrollView
