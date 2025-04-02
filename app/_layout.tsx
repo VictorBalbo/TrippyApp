@@ -10,6 +10,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { TripProvider } from '@/hooks/useTrip';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -34,17 +35,19 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={theme}>
-      <Stack>
-        <Stack.Screen
-          name="(tabs)"
-          options={{
-            headerShown: false,
-            navigationBarColor: theme.colors.card,
-          }}
-        />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-      <StatusBar style="auto" />
+      <TripProvider>
+        <Stack>
+          <Stack.Screen
+            name="(tabs)"
+            options={{
+              headerShown: false,
+              navigationBarColor: theme.colors.card,
+            }}
+          />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+        <StatusBar style="auto" />
+      </TripProvider>
     </ThemeProvider>
   );
 }

@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
 
 import PlaceDetails from '../views/PlaceDetails';
+import MapView from '../views/MapView';
 
 export default function HomeScreen() {
   ///TODO: Remove this
@@ -118,7 +119,8 @@ export default function HomeScreen() {
       lng: 2.2950274999999998,
     },
   };
-  return <PlaceDetails place={place} />;
+  // return <PlaceDetails place={place} />;
+  return <MapView />;
 }
 
 const styles = StyleSheet.create({
