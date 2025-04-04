@@ -1,8 +1,7 @@
-import { ActivityIndicator, StyleSheet, Switch } from 'react-native';
+import { ActivityIndicator, Image, StyleSheet } from 'react-native';
 import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 import { TextType, ThemedText } from '@/components/ui/ThemedText';
 import { ThemedView } from '@/components/ui/ThemedView';
-import { Place } from '@/models';
 import { MapsService } from '@/services';
 import { IconSymbol } from '@/components/ui/Icon/IconSymbol';
 import { Colors } from '@/constants/Theme';
@@ -11,19 +10,46 @@ import { ButtonType, ThemedButton } from '@/components/ui/ThemedButton';
 import { CardView } from '@/components/ui/CardView';
 import DatePicker from '@/components/ui/DatePicker/DatePicker';
 import { InputMoney } from '@/components/ui/InputMoney';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ExternalLink } from '@/components/ExternalLink';
 import HorizontalDivider from '@/components/ui/HorizontalDivider';
 import { sanitizeUrl } from '@/utils/urlSanitize';
 import { Collapsible } from '@/components/ui/Collapsible';
 import { ThemedSwitch } from '@/components/ui/ThemedSwitch';
-import { usePlaceContext } from '@/hooks/usePlaceContext';
+import { useLocalSearchParams } from 'expo-router';
+import { Place } from '@/models';
+import { useMapContext } from '@/hooks/useMapContext';
 
 const PlaceDetails = () => {
+  const { placeId } = useLocalSearchParams<{ placeId: string }>();
+  const { fitPlace } = useMapContext();
+
+  const [place, setplace] = useState<Place>();
+  const [loading, setLoading] = useState<boolean>(false);
+
   const [price, setPrice] = useState<{ value?: number; currency?: string }>({});
   const [needBooking, setNeedBooking] = useState(false);
   const [booked, setBooked] = useState(false);
-  const { place, loading } = usePlaceContext();
+
+  const fetchPlace = async () => {
+    if (placeId && place?.id !== placeId && !loading) {
+      setLoading(true);
+      try {
+        const responsePlace = await MapsService.getDetaisForPlaceId(placeId);
+        setplace(responsePlace);
+        if (responsePlace) {
+          fitPlace(responsePlace);
+        }
+      } catch (err) {
+        console.log('Error');
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+  useEffect(() => {
+    fetchPlace();
+  }, [placeId]);
 
   if (!place || loading) {
     return <ActivityIndicator />;
@@ -31,7 +57,14 @@ const PlaceDetails = () => {
 
   return (
     <ParallaxScrollView
-      headerImageUrl={MapsService.getPhotoForPlace(place.images ?? [])}
+      headerComponent={
+        <Image
+          style={{ flex: 1 }}
+          source={{
+            uri: MapsService.getPhotoForPlace(place.images ?? []),
+          }}
+        />
+      }
     >
       <ThemedView softBackground style={styles.header}>
         <ThemedText type={TextType.Title}>{place.name}</ThemedText>
@@ -122,10 +155,7 @@ const PlaceDetails = () => {
                   <IconSymbol name="phone" color={Colors.blue} />
                   <ThemedText type={TextType.Bold}>Phone</ThemedText>
                 </ThemedView>
-                <ExternalLink
-                  href={`tel:${place.phoneNumber}`}
-                  behavior="browser"
-                >
+                <ExternalLink href={`tel:${place.phoneNumber}`}>
                   {place.phoneNumber}
                 </ExternalLink>
                 {(place.website || place.address) && <HorizontalDivider />}
@@ -150,7 +180,7 @@ const PlaceDetails = () => {
                   <ThemedText type={TextType.Bold}>Address</ThemedText>
                 </ThemedView>
 
-                <ExternalLink href={place.mapsUrl!} behavior="browser">
+                <ExternalLink href={place.mapsUrl!}>
                   {place.address}
                 </ExternalLink>
               </ThemedView>

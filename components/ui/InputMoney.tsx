@@ -101,7 +101,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: borderRadius,
     borderBottomRightRadius: borderRadius,
     borderLeftWidth: 1,
-    color: 'red',
   },
   fakeInputContainer: {
     flex: 1,

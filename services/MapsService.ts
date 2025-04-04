@@ -1,7 +1,7 @@
-import { apiUrl } from '@/constants'
-import { Place } from '@/models';
+import { apiUrl } from '@/constants';
+import { DistanceBetweenPlaces, Place } from '@/models';
 
-const BASE_URL = apiUrl
+const BASE_URL = apiUrl;
 
 export class MapsService {
   static getDetaisForPlaceId = async (id: string) => {
@@ -9,6 +9,21 @@ export class MapsService {
       const response = await fetch(`${BASE_URL}/place/${id}`);
       const data = await response.json();
       return data as Place;
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  static getDistaceBetweenPlaces = async (
+    placeId1: string,
+    placeId2: string
+  ) => {
+    try {
+      const response = await fetch(
+        `${BASE_URL}/distance/${placeId1}/${placeId2}`
+      );
+      const data = await response.json();
+      return data as DistanceBetweenPlaces;
     } catch (e) {
       console.error(e);
     }

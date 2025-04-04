@@ -2,41 +2,70 @@ import MapView, { Marker } from 'react-native-maps';
 import { StyleSheet } from 'react-native';
 import { useTripContext } from '@/hooks/useTrip';
 import { useEffect, useRef, useState } from 'react';
-import { usePlaceContext } from '@/hooks/usePlaceContext';
 import { useRouter } from 'expo-router';
+import { Place } from '@/models';
+import { useMapContext } from '@/hooks/useMapContext';
 
 const Map = () => {
   const { activities, destinations, housings } = useTripContext();
-  const { setPlaceId } = usePlaceContext();
-  const router = useRouter
-  ()
+  const { markers } = useMapContext();
+  const router = useRouter();
   const mapRef = useRef<MapView | null>(null);
   const [visibleMarkers, setVisibleMarkers] = useState<
-    ['destinations' | 'activities' | 'housings']
-  >(['activities']);
+    ('destinations' | 'activities' | 'housings')[]
+  >(['destinations', 'activities', 'housings']);
 
   useEffect(() => {
-    if (mapRef.current && destinations?.length) {
-      mapRef.current.fitToCoordinates(
-        destinations.map((d) => ({
-          latitude: d.place.coordinates.lat,
-          longitude: d.place.coordinates.lng,
-        })),
-        {
-          edgePadding: { top: 25, right: 25, bottom: 25, left: 25 },
-          animated: true,
-        }
-      );
+    if (destinations) {
+      fitMapToMarkers(destinations.map((d) => d.place));
     }
   }, [destinations]);
 
-  const onSelectActivity = (id: string) => {
-    setPlaceId(id)
-    router.push('/views/PlaceDetails')
-  }
+  useEffect(() => {
+    if (markers.length) {
+      fitMapToMarkers(markers);
+    }
+  }, [markers]);
+
+  const onSelectActivity = (placeId: string) => {
+    router.push({
+      pathname: '/views/PlaceDetails',
+      params: { placeId },
+    });
+  };
+  const onSelectDestination = (destinationId: string) => {
+    router.push({
+      pathname: '/views/DestinationDetails',
+      params: { destinationId },
+    });
+  };
+  const fitMapToMarkers = (markers: Place[]) => {
+    if (mapRef.current && markers.length) {
+      if (markers.length === 1) {
+        console.log('region');
+        mapRef.current.animateToRegion({
+          latitude: markers[0].coordinates.lat,
+          longitude: markers[0].coordinates.lng,
+          latitudeDelta: 0.02,
+          longitudeDelta: 0.02,
+        });
+      } else {
+        mapRef.current.fitToCoordinates(
+          markers.map((m) => ({
+            latitude: m.coordinates.lat,
+            longitude: m.coordinates.lng,
+          })),
+          {
+            edgePadding: { top: 50, right: 50, bottom: 200, left: 50 },
+            animated: true,
+          }
+        );
+      }
+    }
+  };
 
   return (
-    <MapView 
+    <MapView
       ref={mapRef}
       key={activities?.length}
       collapsableChildren={false}
@@ -45,34 +74,28 @@ const Map = () => {
       {visibleMarkers.includes('activities') &&
         activities?.map((a) => (
           <Marker
-            key={a.id}
+            key={'1' + a.id}
             onSelect={(e) => onSelectActivity(a.place.id)}
-            id={a.id+ '-1'}
-            identifier={a.id+ '-2'}
             coordinate={{
               latitude: a.place.coordinates.lat,
               longitude: a.place.coordinates.lng,
             }}
             pinColor="red"
-            zIndex={2}
+            zIndex={0}
           />
         ))}
       {visibleMarkers.includes('destinations') &&
         destinations?.map((d) => (
           <Marker
-            key={d.id}
-            title={d.place.name}
-            tracksViewChanges={true}
+            key={'2' + d.id}
             coordinate={{
               latitude: d.place.coordinates.lat,
               longitude: d.place.coordinates.lng,
             }}
             pinColor="blue"
             zIndex={5}
-            onSelect={() => onSelectActivity(d.id)}
-          >
-            
-          </Marker>
+            onSelect={() => onSelectDestination(d.id)}
+          ></Marker>
         ))}
       {visibleMarkers.includes('housings') &&
         housings?.map((h) => (
@@ -87,7 +110,7 @@ const Map = () => {
             zIndex={4}
           />
         ))}
-    </MapView >
+    </MapView>
   );
 };
 

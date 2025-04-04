@@ -44,3 +44,16 @@ export const formatNumber = (input: number, options?: FormatNumberOptions) => {
 
   return addPrefixAndSuffix(formattedNumber, { prefix, suffix });
 };
+
+export const getDisplayDurationFromSeconds = (distance: number) => {
+  const hours = Math.floor(distance / 3600)
+  const minutes = Math.floor((distance % 3600) / 60)
+
+  if (distance < 60) {
+    return `${Math.round(distance)} seg`
+  }
+  if (!hours) {
+    return `${minutes} min`
+  }
+  return `${hours}hr ${minutes} min`
+}

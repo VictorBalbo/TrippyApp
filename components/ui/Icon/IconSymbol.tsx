@@ -25,6 +25,11 @@ const MAPPING = {
   'phone': 'phone',
   'map': 'map',
   'ticket': 'book-online',
+  'arrow.right': 'arrow-forward',
+  "bed.double.fill": 'king-bed',
+  "airplane.arrival": 'train',
+  "airplane.departure": 'train',
+  "sun.and.horizon.fill": 'sunny-snowing'
 } as Partial<
   Record<
     import('expo-symbols').SymbolViewProps['name'],

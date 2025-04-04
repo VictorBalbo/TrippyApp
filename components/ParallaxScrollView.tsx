@@ -1,4 +1,4 @@
-import type { PropsWithChildren } from 'react';
+import type { PropsWithChildren, ReactNode } from 'react';
 import {
   Image,
   KeyboardAvoidingView,
@@ -13,15 +13,19 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { ThemedView } from '@/components/ui/ThemedView';
-import { useBottomTabOverflow } from '@/components/ui/TabBar/TabBarBackground';
 
 const HEADER_HEIGHT = 250;
 
 type Props = PropsWithChildren<{
+  headerComponent?: ReactNode;
   headerImageUrl?: string;
 }>;
 
-export const ParallaxScrollView = ({ children, headerImageUrl }: Props) => {
+export const ParallaxScrollView = ({
+  children,
+  headerImageUrl,
+  headerComponent,
+}: Props) => {
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollOffset = useScrollViewOffset(scrollRef);
   const headerAnimatedStyle = useAnimatedStyle(() => {
@@ -48,13 +52,10 @@ export const ParallaxScrollView = ({ children, headerImageUrl }: Props) => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1 }}
+      style={{ flex: 1, position: 'relative' }}
     >
       <ThemedView background style={styles.container}>
-        <Animated.ScrollView
-          ref={scrollRef}
-          scrollEventThrottle={16}
-        >
+        <Animated.ScrollView ref={scrollRef} scrollEventThrottle={16}>
           <Animated.View style={[styles.header, headerAnimatedStyle]}>
             {headerImageUrl && (
               <Image
@@ -62,6 +63,8 @@ export const ParallaxScrollView = ({ children, headerImageUrl }: Props) => {
                 style={styles.headerImage}
               />
             )}
+
+            {headerComponent && headerComponent}
           </Animated.View>
           <ThemedView style={styles.content}>{children}</ThemedView>
         </Animated.ScrollView>
@@ -73,10 +76,12 @@ export const ParallaxScrollView = ({ children, headerImageUrl }: Props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    position: 'relative',
   },
   header: {
     height: HEADER_HEIGHT,
     overflow: 'hidden',
+    position: 'relative',
   },
   headerImage: {
     height: HEADER_HEIGHT,

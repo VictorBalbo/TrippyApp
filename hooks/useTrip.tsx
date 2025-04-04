@@ -1,5 +1,5 @@
 import { tripId } from '@/constants';
-import { Activity, Destination, Housing, Trip } from '@/models';
+import { Activity, Destination, Housing, Transportation, Trip } from '@/models';
 import { TripService } from '@/services/TripService';
 import {
   createContext,
@@ -16,6 +16,7 @@ interface TripContextType {
   activities?: Activity[];
   destinations?: Destination[];
   housings?: Housing[];
+  transportations?: Transportation[];
 }
 const TripContext = createContext<TripContextType | undefined>(undefined);
 
@@ -38,6 +39,7 @@ export const TripProvider = ({ children }: TripProviderProps) => {
       .flatMap((d) => d.housing)
       .filter((h) => h !== undefined);
   }, [trip?.destinations]);
+  const transportations = trip?.transportations;
 
   const fetchTrip = async () => {
     if (!trip && !loading) {
@@ -58,7 +60,7 @@ export const TripProvider = ({ children }: TripProviderProps) => {
 
   return (
     <TripContext.Provider
-      value={{ trip, setTrip, activities, destinations, housings }}
+      value={{ trip, setTrip, activities, destinations, housings, transportations }}
     >
       {children}
     </TripContext.Provider>

@@ -6,12 +6,12 @@ import { TextType, ThemedText } from './ui/ThemedText';
 
 type Props = Omit<ComponentProps<typeof Link>, 'href'> & {
   href: string;
-  behavior?: 'inApp' | 'browser';
+  inApp?: boolean;
 };
 
 export function ExternalLink({
   href,
-  behavior = 'inApp',
+  inApp = false,
   children,
   ...rest
 }: Props) {
@@ -21,7 +21,7 @@ export function ExternalLink({
       {...rest}
       href={href as ExternalPathString}
       onPress={async (event) => {
-        if (Platform.OS !== 'web' && behavior === "inApp") {
+        if (Platform.OS !== 'web' && inApp) {
           // Prevent the default behavior of linking to the default browser on native.
           event.preventDefault();
           // Open the link in an in-app browser.

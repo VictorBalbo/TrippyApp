@@ -9,7 +9,7 @@ import { TripProvider } from '@/hooks/useTrip';
 import Map from '@/components/Map';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { Platform, StyleSheet } from 'react-native';
-import { PlaceProvider } from '@/hooks/usePlaceContext';
+import { MapProvider } from '@/hooks/useMapContext';
 import { ThemedView } from '@/components/ui/ThemedView';
 import { useThemeColor, useThemeProperty } from '@/hooks/useTheme';
 
@@ -17,12 +17,12 @@ import { useThemeColor, useThemeProperty } from '@/hooks/useTheme';
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const background = useThemeColor('background');
   const [loaded] = useFonts({
     SpaceMono: require('@/assets/fonts/SpaceMono-Regular.ttf'),
   });
 
   if (Platform.OS === 'android') {
-    const background = useThemeColor('background')
     NavigationBar.setBackgroundColorAsync(background);
   }
 
@@ -37,7 +37,7 @@ export default function RootLayout() {
   }
 
   return (
-    <PlaceProvider>
+    <MapProvider>
       <TripProvider>
         <GestureHandlerRootView style={styles.container}>
           <Map />
@@ -46,7 +46,10 @@ export default function RootLayout() {
             snapPoints={['20%', '50%', '90%']}
             enableDynamicSizing={false}
             handleComponent={null}
-            backgroundStyle={styles.viewContainer}
+            backgroundStyle={[
+              styles.viewContainer,
+              { backgroundColor: background },
+            ]}
           >
             <ThemedView softBackground style={[styles.handleIndicator]} />
             <BottomSheetScrollView style={styles.viewContainer}>
@@ -56,7 +59,7 @@ export default function RootLayout() {
           <StatusBar style="auto" />
         </GestureHandlerRootView>
       </TripProvider>
-    </PlaceProvider>
+    </MapProvider>
   );
 }
 
