@@ -37,7 +37,7 @@ export default function index() {
             onPress={() => onPress(d)}
             style={[
               styles.destination,
-              i !== destinations.length - 1 ? styles.destinationBorder : '',
+              i !== 0 ? styles.destinationBorder : '',
               { borderColor },
             ]}
           >
@@ -94,8 +94,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   destinationBorder: {
-    borderBottomWidth: 1,
-    paddingBottom: smallSpacing,
+    borderTopWidth: 1,
+    paddingTop: smallSpacing,
   },
   destinationName: {
     width: '50%',

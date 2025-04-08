@@ -42,7 +42,6 @@ const Map = () => {
   const fitMapToMarkers = (markers: Place[]) => {
     if (mapRef.current && markers.length) {
       if (markers.length === 1) {
-        console.log('region');
         mapRef.current.animateToRegion({
           latitude: markers[0].coordinates.lat,
           longitude: markers[0].coordinates.lng,

@@ -1,6 +1,5 @@
 import { ActivityIndicator, Image, StyleSheet } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { ParallaxScrollView } from '@/components/ParallaxScrollView';
+import { ItineraryView } from '@/components/ItineraryView';
 import { MapsService } from '@/services';
 import { useThemeProperty } from '@/hooks/useTheme';
 import { useTripContext } from '@/hooks/useTrip';
@@ -18,6 +17,7 @@ import { getDisplayDurationFromSeconds } from '@/utils/numberFormat';
 import { getMapsDirectionLink } from '@/utils/mapsUtils';
 import { TripService } from '@/services/TripService';
 import { useMapContext } from '@/hooks/useMapContext';
+import { BottomSheetView } from '@/components/BottomSheetView';
 
 const DestinationDetails = () => {
   const { destinations, transportations } = useTripContext();
@@ -32,6 +32,29 @@ const DestinationDetails = () => {
   const [departureDistanceFromHome, setDepartureDistanceFromHome] =
     useState<DistanceBetweenPlaces>();
   const [weather, setWeather] = useState<Weather>();
+
+  useEffect(() => {
+    if (!destination) {
+      return;
+    }
+
+    const arrivalTransport = transportations?.find(
+      (t) =>
+        destination?.placeId === t.destinationId &&
+        isSameDay(destination.startDate, t.endDate)
+    );
+    setArrival(arrivalTransport);
+    const departureTransport = transportations?.find(
+      (t) =>
+        destination?.placeId === t.originId &&
+        isSameDay(destination.endDate, t.startDate)
+    );
+    setDeparture(departureTransport);
+
+    fitDestination(destination);
+    fetchArrivalDestinationDistances(arrivalTransport, departureTransport);
+    fetchWeatherAverages(destination.id);
+  }, [destinationId]);
 
   let loadingArrivalDestinationDistances = false;
   const fetchArrivalDestinationDistances = async (
@@ -71,70 +94,50 @@ const DestinationDetails = () => {
     }
   };
 
-  useEffect(() => {
-    if (!destination) {
-      return;
+  const getHousingType = () => {
+    const website = sanitizeUrl(destination?.housing?.website ?? '');
+    if (website) {
+      if (website.includes('airbnb')) {
+        return 'Airbnb';
+      }
+      if (website.includes('booking')) {
+        return 'Booking';
+      }
+      return 'Hotel';
     }
-
-    const arrivalTransport = transportations?.find(
-      (t) =>
-        destination?.placeId === t.destinationId &&
-        isSameDay(destination.startDate, t.endDate)
-    );
-    setArrival(arrivalTransport);
-    const departureTransport = transportations?.find(
-      (t) =>
-        destination?.placeId === t.originId &&
-        isSameDay(destination.endDate, t.startDate)
-    );
-    setDeparture(departureTransport);
-
-    fitDestination(destination);
-    fetchArrivalDestinationDistances(arrivalTransport, departureTransport);
-    fetchWeatherAverages(destination.id);
-  }, [destinationId]);
+    return undefined;
+  };
 
   if (!destination) {
     return <ActivityIndicator />;
   }
 
   return (
-    <ParallaxScrollView
+    <BottomSheetView
+      headerImageUrl={MapsService.getPhotoForPlace(
+        destination.place.images ?? []
+      )}
       headerComponent={
-        <ThemedView style={styles.header}>
-          <Image
-            style={{ flex: 1, height: 200 }}
-            source={{
-              uri: MapsService.getPhotoForPlace(destination.place.images ?? []),
-            }}
-          />
-          <LinearGradient
-            colors={['black', 'transparent']}
-            start={{ x: 0, y: 1 }}
-            end={{ x: 0, y: 0.5 }}
-            style={styles.headerGradient}
-          />
-          <ThemedView style={styles.headerTitle}>
-            <ThemedText type={TextType.Bold}>
-              {utcDate(destination?.endDate).diff(
-                utcDate(destination?.startDate),
-                'days'
-              )}
-              {utcDate(destination?.endDate).diff(
-                utcDate(destination?.startDate),
-                'days'
-              ) > 1
-                ? ' nights'
-                : ' night'}
-            </ThemedText>
-            <ThemedText type={TextType.Title}>
-              {destination.place.name}
-            </ThemedText>
-            <ThemedText type={TextType.Bold}>
-              {utcDate(destination?.startDate).format('DD MMM')} -
-              {utcDate(destination?.endDate).format('DD MMM')}
-            </ThemedText>
-          </ThemedView>
+        <ThemedView style={styles.headerTitle}>
+          <ThemedText type={TextType.Bold}>
+            {utcDate(destination?.endDate).diff(
+              utcDate(destination?.startDate),
+              'days'
+            )}
+            {utcDate(destination?.endDate).diff(
+              utcDate(destination?.startDate),
+              'days'
+            ) > 1
+              ? ' nights'
+              : ' night'}
+          </ThemedText>
+          <ThemedText type={TextType.Title}>
+            {destination.place.name}
+          </ThemedText>
+          <ThemedText type={TextType.Bold}>
+            {utcDate(destination?.startDate).format('DD MMM')} -
+            {utcDate(destination?.endDate).format('DD MMM')}
+          </ThemedText>
         </ThemedView>
       }
     >
@@ -142,16 +145,17 @@ const DestinationDetails = () => {
         {destination.housing && (
           <CardView style={styles.card}>
             <ThemedView style={styles.iconTitle}>
-              <IconSymbol name="bed.double.fill" color="white" />
+              <IconSymbol name="bed.double.fill" />
               <ThemedText type={TextType.Bold} style={{ alignItems: 'center' }}>
                 Sleep in {destination.place.name}
               </ThemedText>
             </ThemedView>
+            <ThemedText type={TextType.Small}>{getHousingType()}</ThemedText>
             <ThemedText>{destination.housing.name}</ThemedText>
             {destination.housing.checkin && destination.housing.checkout && (
               <ThemedText>
                 {utcDate(destination.housing.checkin).format('DD/MM HH:mm ')}
-                <IconSymbol name="arrow.right" color="white" size={12} />
+                <IconSymbol name="arrow.right" size={12} />
                 {utcDate(destination.housing.checkout).format(' DD/MM HH:mm')}
               </ThemedText>
             )}
@@ -170,7 +174,7 @@ const DestinationDetails = () => {
         {arrival && (
           <CardView style={styles.card}>
             <ThemedView style={styles.iconTitle}>
-              <IconSymbol name="airplane.arrival" color="white" />
+              <IconSymbol name="tram" />
               <ThemedText type={TextType.Bold}>Arrival</ThemedText>
             </ThemedView>
             <ThemedText type={TextType.Small}>{arrival.type}</ThemedText>
@@ -205,7 +209,7 @@ const DestinationDetails = () => {
         {departure && (
           <CardView style={styles.card}>
             <ThemedView style={styles.iconTitle}>
-              <IconSymbol name="airplane.departure" color="white" />
+              <IconSymbol name="airplane.departure" />
               <ThemedText type={TextType.Bold}>Departure</ThemedText>
             </ThemedView>
             <ThemedText type={TextType.Small}>{departure.type}</ThemedText>
@@ -241,9 +245,12 @@ const DestinationDetails = () => {
         {weather && (
           <CardView style={styles.card}>
             <ThemedView style={styles.iconTitle}>
-              <IconSymbol name="sun.and.horizon.fill" color="white" />
+              <IconSymbol name="sun.and.horizon.fill" />
               <ThemedText type={TextType.Bold}>Average Weather</ThemedText>
             </ThemedView>
+            <ThemedText type={TextType.Small}>
+              Average for the past 3 years
+            </ThemedText>
             <ThemedText>Sunrise: {weather.sunrise}</ThemedText>
             <ThemedText>Sunset: {weather.sunset}</ThemedText>
             <ThemedView style={styles.weatherTemp}>
@@ -267,8 +274,16 @@ const DestinationDetails = () => {
             </ThemedView>
           </CardView>
         )}
+
+        {destination.activities?.length && (
+          <ItineraryView
+            activities={destination.activities}
+            startDate={destination.startDate}
+            endDate={destination.endDate}
+          />
+        )}
       </ThemedView>
-    </ParallaxScrollView>
+    </BottomSheetView>
   );
 };
 
@@ -276,15 +291,6 @@ const smallSpacing = useThemeProperty('smallSpacing');
 const largeSpacing = useThemeProperty('largeSpacing');
 
 const styles = StyleSheet.create({
-  header: {
-    flex: 1,
-    position: 'relative',
-  },
-  headerGradient: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-  },
   headerTitle: {
     position: 'absolute',
     height: '100%',

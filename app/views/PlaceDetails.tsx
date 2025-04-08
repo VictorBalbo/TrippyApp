@@ -1,5 +1,5 @@
 import { ActivityIndicator, Image, StyleSheet } from 'react-native';
-import { ParallaxScrollView } from '@/components/ParallaxScrollView';
+import { BottomSheetView } from '@/components/BottomSheetView';
 import { TextType, ThemedText } from '@/components/ui/ThemedText';
 import { ThemedView } from '@/components/ui/ThemedView';
 import { MapsService } from '@/services';
@@ -56,15 +56,8 @@ const PlaceDetails = () => {
   }
 
   return (
-    <ParallaxScrollView
-      headerComponent={
-        <Image
-          style={{ flex: 1 }}
-          source={{
-            uri: MapsService.getPhotoForPlace(place.images ?? []),
-          }}
-        />
-      }
+    <BottomSheetView
+      headerImageUrl={MapsService.getPhotoForPlace(place.images ?? [])}
     >
       <ThemedView softBackground style={styles.header}>
         <ThemedText type={TextType.Title}>{place.name}</ThemedText>
@@ -211,7 +204,7 @@ const PlaceDetails = () => {
           </CardView>
         )}
       </ThemedView>
-    </ParallaxScrollView>
+    </BottomSheetView>
   );
 };
 
