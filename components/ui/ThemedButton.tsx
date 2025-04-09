@@ -15,6 +15,7 @@ import { SFSymbol } from 'expo-symbols';
 export enum ButtonType {
   Primary = 'primary',
   Secondary = 'secondary',
+  Delete = 'delete',
 }
 
 interface ButtonProps {
@@ -70,6 +71,10 @@ export const ThemedButton = ({
   switch (type) {
     case ButtonType.Secondary:
       backgroundColor = Colors.blackLight;
+      textColor = Colors.white;
+      break;
+    case ButtonType.Delete:
+      backgroundColor = Colors.red;
       textColor = Colors.white;
       break;
     case ButtonType.Primary:

@@ -10,7 +10,7 @@ import { ButtonType, ThemedButton } from '@/components/ui/ThemedButton';
 import { CardView } from '@/components/ui/CardView';
 import DatePicker from '@/components/ui/DatePicker/DatePicker';
 import { InputMoney } from '@/components/ui/InputMoney';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ExternalLink } from '@/components/ExternalLink';
 import HorizontalDivider from '@/components/ui/HorizontalDivider';
 import { sanitizeUrl } from '@/utils/urlSanitize';
@@ -19,15 +19,20 @@ import { ThemedSwitch } from '@/components/ui/ThemedSwitch';
 import { useLocalSearchParams } from 'expo-router';
 import { Place } from '@/models';
 import { useMapContext } from '@/hooks/useMapContext';
+import { useTripContext } from '@/hooks/useTrip';
 
 const PlaceDetails = () => {
   const { placeId } = useLocalSearchParams<{ placeId: string }>();
   const { fitPlace } = useMapContext();
+  const { activities } = useTripContext();
+  const currentActivity = useMemo(
+    () => activities?.find((a) => a.placeId === placeId),
+    [placeId, activities]
+  );
 
   const [place, setplace] = useState<Place>();
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [price, setPrice] = useState<{ value?: number; currency?: string }>({});
   const [needBooking, setNeedBooking] = useState(false);
   const [booked, setBooked] = useState(false);
 
@@ -71,12 +76,23 @@ const PlaceDetails = () => {
           </ThemedView>
         )}
         <ThemedView style={styles.headerActions}>
-          <ThemedButton
-            title="Add"
-            icon="plus"
-            onPress={() => console.log('add')}
-            style={styles.actionButton}
-          />
+          {currentActivity && (
+            <ThemedButton
+              title="Remove"
+              icon="trash"
+              type={ButtonType.Delete}
+              onPress={() => console.log('add')}
+              style={styles.actionButton}
+            />
+          )}
+          {!currentActivity && (
+            <ThemedButton
+              title="Add"
+              icon="plus"
+              onPress={() => console.log('add')}
+              style={styles.actionButton}
+            />
+          )}
           <ThemedButton
             title="Go To Website"
             icon="globe"
@@ -87,41 +103,45 @@ const PlaceDetails = () => {
         </ThemedView>
       </ThemedView>
       <ThemedView background style={styles.body}>
-        <CardView style={styles.inlineTitleInput}>
-          <ThemedView style={styles.iconTitle}>
-            <IconSymbol name="calendar" color={Colors.blue} />
-            <ThemedText type={TextType.Bold}>Date</ThemedText>
-          </ThemedView>
-          <DatePicker value={new Date()} />
-        </CardView>
-
-        <CardView style={styles.inlineTitleInput}>
-          <ThemedView style={styles.iconTitle}>
-            <IconSymbol name="dollarsign" color={Colors.blue} />
-            <ThemedText type={TextType.Bold}>Price</ThemedText>
-          </ThemedView>
-          <InputMoney
-            model={price}
-            onValueChange={setPrice}
-            style={{ maxWidth: 200, flex: 1 }}
-          />
-        </CardView>
-
-        <CardView style={styles.inlineTitleInput}>
-          <ThemedView style={styles.iconTitle}>
-            <IconSymbol name="ticket" color={Colors.blue} />
-            <ThemedText type={TextType.Bold}>Needs Booking</ThemedText>
-          </ThemedView>
-          <ThemedSwitch
-            value={needBooking}
-            onValueChange={(val) => setNeedBooking(val)}
-          />
-        </CardView>
-
-        {needBooking && (
+        {currentActivity && (
           <CardView style={styles.inlineTitleInput}>
             <ThemedView style={styles.iconTitle}>
-              <IconSymbol name="ticket" color={Colors.blue} />
+              <IconSymbol name="calendar" color={Colors.blue} />
+              <ThemedText type={TextType.Bold}>Date</ThemedText>
+            </ThemedView>
+            <DatePicker value={currentActivity.dateTime ?? new Date()} />
+          </CardView>
+        )}
+        {currentActivity && (
+          <CardView style={styles.inlineTitleInput}>
+            <ThemedView style={styles.iconTitle}>
+              <IconSymbol name="dollarsign" color={Colors.blue} />
+              <ThemedText type={TextType.Bold}>Price</ThemedText>
+            </ThemedView>
+            <InputMoney
+              model={currentActivity.price}
+              onValueChange={(price) => currentActivity.price = price}
+              style={{ maxWidth: 200, flex: 1 }}
+            />
+          </CardView>
+        )}
+        {currentActivity && (
+          <CardView style={styles.inlineTitleInput}>
+            <ThemedView style={styles.iconTitle}>
+              <IconSymbol name="ticket.fill" color={Colors.blue} />
+              <ThemedText type={TextType.Bold}>Needs Booking</ThemedText>
+            </ThemedView>
+            <ThemedSwitch
+              value={needBooking}
+              onValueChange={(val) => setNeedBooking(val)}
+            />
+          </CardView>
+        )}
+
+        {currentActivity && needBooking && (
+          <CardView style={styles.inlineTitleInput}>
+            <ThemedView style={styles.iconTitle}>
+              <IconSymbol name="ticket.fill" color={Colors.blue} />
               <ThemedText type={TextType.Bold}>Booked</ThemedText>
             </ThemedView>
             <ThemedSwitch
@@ -134,7 +154,7 @@ const PlaceDetails = () => {
         {place.description && (
           <CardView style={styles.infoCard}>
             <ThemedView style={styles.iconTitle}>
-              <IconSymbol name="info.circle" color={Colors.blue} />
+              <IconSymbol name="info.circle.fill" color={Colors.blue} />
               <ThemedText type={TextType.Bold}>Description</ThemedText>
             </ThemedView>
             <ThemedText>{place.description}</ThemedText>
@@ -145,7 +165,7 @@ const PlaceDetails = () => {
             {place.phoneNumber && (
               <ThemedView style={styles.infoCard}>
                 <ThemedView style={styles.iconTitle}>
-                  <IconSymbol name="phone" color={Colors.blue} />
+                  <IconSymbol name="phone.fill" color={Colors.blue} />
                   <ThemedText type={TextType.Bold}>Phone</ThemedText>
                 </ThemedView>
                 <ExternalLink href={`tel:${place.phoneNumber}`}>
@@ -169,7 +189,7 @@ const PlaceDetails = () => {
             {place.address && (
               <ThemedView style={styles.infoCard}>
                 <ThemedView style={styles.iconTitle}>
-                  <IconSymbol name="map" color={Colors.blue} />
+                  <IconSymbol name="map.fill" color={Colors.blue} />
                   <ThemedText type={TextType.Bold}>Address</ThemedText>
                 </ThemedView>
 
@@ -183,7 +203,7 @@ const PlaceDetails = () => {
         {place.openingHours && (
           <CardView style={styles.infoCard}>
             <ThemedView style={styles.iconTitle}>
-              <IconSymbol name="clock" color={Colors.blue} />
+              <IconSymbol name="clock.fill" color={Colors.blue} />
               <ThemedText type={TextType.Bold}>Opening Hours</ThemedText>
             </ThemedView>
             <Collapsible
@@ -228,6 +248,7 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
+    backgroundColor: 'red',
   },
   body: {
     padding: largeSpacing,

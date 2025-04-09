@@ -1,4 +1,4 @@
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Polyline } from 'react-native-maps';
 import { StyleSheet } from 'react-native';
 import { useTripContext } from '@/hooks/useTrip';
 import { useEffect, useRef, useState } from 'react';
@@ -7,13 +7,14 @@ import { Place } from '@/models';
 import { useMapContext } from '@/hooks/useMapContext';
 
 const Map = () => {
-  const { activities, destinations, housings } = useTripContext();
+  const { activities, destinations, housings, transportations } =
+    useTripContext();
   const { markers } = useMapContext();
   const router = useRouter();
   const mapRef = useRef<MapView | null>(null);
   const [visibleMarkers, setVisibleMarkers] = useState<
-    ('destinations' | 'activities' | 'housings')[]
-  >(['destinations', 'activities', 'housings']);
+    ('destinations' | 'activities' | 'housings' | 'transportations')[]
+  >(['destinations', 'activities', 'housings', 'transportations']);
 
   useEffect(() => {
     if (destinations) {
@@ -107,6 +108,47 @@ const Map = () => {
             }}
             pinColor="green"
             zIndex={4}
+          />
+        ))}
+      {visibleMarkers.includes('transportations') &&
+        transportations?.map((t) => (
+          <Marker
+            key={t.originTerminalId}
+            title={t.originTerminal.name}
+            coordinate={{
+              latitude: t.originTerminal.coordinates.lat,
+              longitude: t.originTerminal.coordinates.lng,
+            }}
+            pinColor="purple"
+            zIndex={3}
+          />
+        ))}
+      {visibleMarkers.includes('transportations') &&
+        transportations?.map((t) => (
+          <Marker
+            key={t.destinationTerminalId}
+            title={t.destinationTerminal.name}
+
+            coordinate={{
+              latitude: t.destinationTerminal.coordinates.lat,
+              longitude: t.destinationTerminal.coordinates.lng,
+            }}
+            pinColor="purple"
+            zIndex={3}
+          />
+        ))}
+      {visibleMarkers.includes('transportations') &&
+        transportations?.map((t) => (
+          <Polyline
+            key={t.originTerminalId + t.destinationTerminalId}
+            coordinates={t.path.map((c) => ({
+              latitude: c.lat,
+              longitude: c.lng,
+            }))}
+            fillColor='blue'
+            strokeColor='blue'
+            strokeWidth={2}
+            geodesic={true}
           />
         ))}
     </MapView>

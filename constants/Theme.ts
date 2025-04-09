@@ -33,6 +33,7 @@ export const Colors = {
   black: '#1B1B1B',
   blackDeep: '#000000',
 
+  red: '#D70015',
   blue: '#007AFF',
   yellow: "#ffcc00",
 };

@@ -18,6 +18,8 @@ import { getMapsDirectionLink } from '@/utils/mapsUtils';
 import { TripService } from '@/services/TripService';
 import { useMapContext } from '@/hooks/useMapContext';
 import { BottomSheetView } from '@/components/BottomSheetView';
+import { SFSymbol } from 'expo-symbols';
+import { TransportTypes } from '@/models/Transportation';
 
 const DestinationDetails = () => {
   const { destinations, transportations } = useTripContext();
@@ -108,6 +110,29 @@ const DestinationDetails = () => {
     return undefined;
   };
 
+  const getTransportIcon = (
+    type: TransportTypes,
+    status: 'arrival' | 'departure'
+  ): SFSymbol => {
+    if (status === 'arrival') {
+      if (type === TransportTypes.Train) {
+        return 'train.side.front.car';
+      }
+      if (type === TransportTypes.Bus) {
+        return 'bus.fill';
+      }
+      return 'airplane.arrival';
+    } else {
+      if (type === TransportTypes.Train) {
+        return 'train.side.rear.car';
+      }
+      if (type === TransportTypes.Bus) {
+        return 'bus.fill';
+      }
+      return 'airplane.departure';
+    }
+  };
+
   if (!destination) {
     return <ActivityIndicator />;
   }
@@ -174,7 +199,7 @@ const DestinationDetails = () => {
         {arrival && (
           <CardView style={styles.card}>
             <ThemedView style={styles.iconTitle}>
-              <IconSymbol name="tram" />
+              <IconSymbol name={getTransportIcon(arrival.type, 'arrival')} />
               <ThemedText type={TextType.Bold}>Arrival</ThemedText>
             </ThemedView>
             <ThemedText type={TextType.Small}>{arrival.type}</ThemedText>
@@ -209,7 +234,9 @@ const DestinationDetails = () => {
         {departure && (
           <CardView style={styles.card}>
             <ThemedView style={styles.iconTitle}>
-              <IconSymbol name="airplane.departure" />
+              <IconSymbol
+                name={getTransportIcon(departure.type, 'departure')}
+              />
               <ThemedText type={TextType.Bold}>Departure</ThemedText>
             </ThemedView>
             <ThemedText type={TextType.Small}>{departure.type}</ThemedText>
