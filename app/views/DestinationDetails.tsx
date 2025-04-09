@@ -166,7 +166,7 @@ const DestinationDetails = () => {
             )}
             {destination.housing.place.mapsUrl && (
               <ExternalLink href={destination.housing.place.mapsUrl}>
-                {destination.housing.place.address}
+                {destination.housing.place.vicinity}
               </ExternalLink>
             )}
           </CardView>

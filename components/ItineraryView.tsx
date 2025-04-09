@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
   },
   activityInfo: {
     padding: smallSpacing,
-    gap: smallSpacing,
+    gap: smallSpacing / 2,
     flex: 1,
   },
   activityImage: {
