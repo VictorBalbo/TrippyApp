@@ -1,12 +1,5 @@
 import { Destination, Place } from '@/models';
-import { MapsService } from '@/services';
-import {
-  createContext,
-  useState,
-  ReactNode,
-  useContext,
-  useEffect,
-} from 'react';
+import { createContext, useState, ReactNode, useContext } from 'react';
 
 interface MapContextType {
   fitDestination: (destination: Destination) => void;

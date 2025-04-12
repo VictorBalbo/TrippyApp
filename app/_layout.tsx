@@ -7,11 +7,14 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { TripProvider } from '@/hooks/useTrip';
 import Map from '@/components/Map';
-import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import { Platform, StyleSheet } from 'react-native';
+import BottomSheet, {
+  BottomSheetScrollView,
+  BottomSheetView,
+} from '@gorhom/bottom-sheet';
+import { Platform, StyleSheet, View } from 'react-native';
 import { MapProvider } from '@/hooks/useMapContext';
 import { ThemedView } from '@/components/ui/ThemedView';
-import { useThemeColor, useThemeProperty } from '@/hooks/useTheme';
+import { useThemeColor, getThemeProperty } from '@/hooks/useTheme';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -51,7 +54,7 @@ export default function RootLayout() {
               { backgroundColor: background },
             ]}
           >
-            <ThemedView softBackground style={[styles.handleIndicator]} />
+            <ThemedView softBackground style={styles.handleIndicator} />
             <BottomSheetScrollView style={styles.viewContainer}>
               <Slot />
             </BottomSheetScrollView>
@@ -63,8 +66,8 @@ export default function RootLayout() {
   );
 }
 
-const smallSpacing = useThemeProperty('smallSpacing');
-const borderRadius = useThemeProperty('borderRadius');
+const smallSpacing = getThemeProperty('smallSpacing');
+const borderRadius = getThemeProperty('borderRadius');
 
 const styles = StyleSheet.create({
   container: {

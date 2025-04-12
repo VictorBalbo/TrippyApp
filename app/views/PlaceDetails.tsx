@@ -1,40 +1,40 @@
-import { ActivityIndicator, Image, StyleSheet } from 'react-native';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 import { BottomSheetView } from '@/components/BottomSheetView';
 import { TextType, ThemedText } from '@/components/ui/ThemedText';
 import { ThemedView } from '@/components/ui/ThemedView';
 import { MapsService } from '@/services';
 import { IconSymbol } from '@/components/ui/Icon/IconSymbol';
 import { Colors } from '@/constants/Theme';
-import { useThemeProperty } from '@/hooks/useTheme';
+import { getThemeProperty } from '@/hooks/useTheme';
 import { ButtonType, ThemedButton } from '@/components/ui/ThemedButton';
 import { CardView } from '@/components/ui/CardView';
 import DatePicker from '@/components/ui/DatePicker/DatePicker';
 import { InputMoney } from '@/components/ui/InputMoney';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ExternalLink } from '@/components/ExternalLink';
 import HorizontalDivider from '@/components/ui/HorizontalDivider';
 import { sanitizeUrl } from '@/utils/urlSanitize';
 import { Collapsible } from '@/components/ui/Collapsible';
 import { ThemedSwitch } from '@/components/ui/ThemedSwitch';
-import { useLocalSearchParams } from 'expo-router';
-import { Place } from '@/models';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Activity, Destination, Place } from '@/models';
 import { useMapContext } from '@/hooks/useMapContext';
 import { useTripContext } from '@/hooks/useTrip';
 
 const PlaceDetails = () => {
   const { placeId } = useLocalSearchParams<{ placeId: string }>();
   const { fitPlace } = useMapContext();
-  const { activities } = useTripContext();
-  const currentActivity = useMemo(
-    () => activities?.find((a) => a.placeId === placeId),
-    [placeId, activities]
-  );
+  const { activities, destinations } = useTripContext();
+  const router = useRouter();
 
   const [place, setplace] = useState<Place>();
   const [loading, setLoading] = useState<boolean>(false);
+  const [currentActivity, setCurrentActivity] = useState<Activity>();
+  const [currentDestination, setCurrentDestination] = useState<Destination>();
 
   const [needBooking, setNeedBooking] = useState(false);
   const [booked, setBooked] = useState(false);
+  const [date, setDate] = useState<Date>();
 
   const fetchPlace = async () => {
     if (placeId && place?.id !== placeId && !loading) {
@@ -42,11 +42,18 @@ const PlaceDetails = () => {
       try {
         const responsePlace = await MapsService.getDetaisForPlaceId(placeId);
         setplace(responsePlace);
+        setCurrentActivity(activities?.find((a) => a.placeId === placeId));
+        setDate(currentActivity?.dateTime);
+        setCurrentDestination(
+          destinations?.find((d) =>
+            d.activities?.find((a) => a.placeId === placeId)
+          )
+        );
         if (responsePlace) {
           fitPlace(responsePlace);
         }
       } catch (err) {
-        console.log('Error');
+        console.log('Error', err);
       } finally {
         setLoading(false);
       }
@@ -57,12 +64,17 @@ const PlaceDetails = () => {
   }, [placeId]);
 
   if (!place || loading) {
-    return <ActivityIndicator />;
+    return <ActivityIndicator />
+  }
+
+  const closeButtonCallback = () => {
+    router.back();
   }
 
   return (
     <BottomSheetView
       headerImageUrl={MapsService.getPhotoForPlace(place.images ?? [])}
+      closeButtonCallback={closeButtonCallback}
     >
       <ThemedView softBackground style={styles.header}>
         <ThemedText type={TextType.Title}>{place.name}</ThemedText>
@@ -109,7 +121,12 @@ const PlaceDetails = () => {
               <IconSymbol name="calendar" color={Colors.blue} />
               <ThemedText type={TextType.Bold}>Date</ThemedText>
             </ThemedView>
-            <DatePicker value={currentActivity.dateTime ?? new Date()} />
+            <DatePicker
+              value={date ?? currentDestination!.startDate}
+              onChange={(_, date) => setDate(date)}
+              minimumDate={currentDestination!.startDate}
+              maximumDate={currentDestination!.endDate}
+            />
           </CardView>
         )}
         {currentActivity && (
@@ -120,7 +137,7 @@ const PlaceDetails = () => {
             </ThemedView>
             <InputMoney
               model={currentActivity.price}
-              onValueChange={(price) => currentActivity.price = price}
+              onValueChange={(price) => (currentActivity.price = price)}
               style={{ maxWidth: 200, flex: 1 }}
             />
           </CardView>
@@ -138,7 +155,7 @@ const PlaceDetails = () => {
           </CardView>
         )}
 
-        {currentActivity && needBooking && (
+        {(currentActivity && needBooking) && (
           <CardView style={styles.inlineTitleInput}>
             <ThemedView style={styles.iconTitle}>
               <IconSymbol name="ticket.fill" color={Colors.blue} />
@@ -228,8 +245,8 @@ const PlaceDetails = () => {
   );
 };
 
-const smallSpacing = useThemeProperty('smallSpacing');
-const largeSpacing = useThemeProperty('largeSpacing');
+const smallSpacing = getThemeProperty('smallSpacing');
+const largeSpacing = getThemeProperty('largeSpacing');
 
 const styles = StyleSheet.create({
   header: {
@@ -248,7 +265,6 @@ const styles = StyleSheet.create({
   },
   actionButton: {
     flex: 1,
-    backgroundColor: 'red',
   },
   body: {
     padding: largeSpacing,

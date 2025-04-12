@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { StyleSheet, Text, TextProps, View } from 'react-native';
+import { StyleSheet, TextProps, View } from 'react-native';
 
 import useBlink from './useBlink';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useThemeColor, useThemeProperty } from '@/hooks/useTheme';
-import { TextType, ThemedText } from '@/components/ui/ThemedText';
+import { useThemeColor, getThemeProperty } from '@/hooks/useTheme';
+import { ThemedText } from '@/components/ui/ThemedText';
 
 export interface TextWithCursorProps extends TextProps {
   children?: React.ReactNode;
@@ -27,7 +27,7 @@ const TextWithCursor = (textWithCursorProps: TextWithCursorProps) => {
   const blinkVisible = useBlink();
   const [isTyping, setIsTyping] = useState(false);
   const timeout = useRef<NodeJS.Timeout>();
-  const textSize = useThemeProperty('textSize');
+  const textSize = getThemeProperty('textSize');
   const color = useThemeColor('link');
 
   const cursorVisibility = useMemo(() => {

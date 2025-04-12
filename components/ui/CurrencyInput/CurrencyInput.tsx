@@ -96,8 +96,6 @@ export const CurrencyInput = (props: CurrencyInputProps) => {
       maxValue,
       minValue,
       onChangeValue,
-      onChangeText,
-      formattedValue,
     ]
   );
 

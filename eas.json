@@ -8,6 +8,15 @@
         "buildType": "apk"
       }
     },
+    "adhoc": {
+      "ios": {
+        "credentialsSource": "local",
+        "distribution": "internal",
+        "developmentClient": false,
+        "autoIncrement": false,
+        "simulator": false
+      }
+    },
     "preview": {
       "developmentClient": true,
       "distribution": "internal",

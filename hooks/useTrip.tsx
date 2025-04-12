@@ -48,7 +48,7 @@ export const TripProvider = ({ children }: TripProviderProps) => {
         const responseTrip = await TripService.getTripDetails(tripId);
         setTrip(responseTrip);
       } catch (err) {
-        console.log('Error');
+        console.log('Error', err);
       } finally {
         setLoading(false);
       }

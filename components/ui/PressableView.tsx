@@ -1,4 +1,4 @@
-import { useThemeProperty } from '@/hooks/useTheme';
+import { getThemeProperty } from '@/hooks/useTheme';
 import { PropsWithChildren, useRef } from 'react';
 import {
   Pressable,
@@ -71,8 +71,8 @@ export const PressableView = ({
     </Pressable>
   );
 };
-const smallSpacing = useThemeProperty('smallSpacing');
-const borderRadius = useThemeProperty('borderRadius');
+const smallSpacing = getThemeProperty('smallSpacing');
+const borderRadius = getThemeProperty('borderRadius');
 const styles = StyleSheet.create({
   pressable: {
     borderRadius: borderRadius,

@@ -14,10 +14,12 @@ export function ThemedView({
   ...otherProps
 }: ThemedViewProps) {
   let backgroundColor;
+  const defaultBackgroundColor = useThemeColor('background');
+  const defaultSoftBackgroundColor = useThemeColor('backgroundSoft');
   if (background) {
-    backgroundColor = useThemeColor('background');
+    backgroundColor = defaultBackgroundColor;
   } else if (softBackground) {
-    backgroundColor = useThemeColor('backgroundSoft');
+    backgroundColor = defaultSoftBackgroundColor;
   }
 
   return <View style={[{ backgroundColor }, style]} {...otherProps} />;

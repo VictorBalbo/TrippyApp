@@ -1,7 +1,7 @@
 import { StyleSheet, type ViewProps } from 'react-native';
 
 import { ThemedView } from './ThemedView';
-import { useThemeProperty } from '@/hooks/useTheme';
+import { getThemeProperty } from '@/hooks/useTheme';
 
 export function CardView({ style, ...otherProps }: ViewProps) {
   return (
@@ -12,8 +12,8 @@ export function CardView({ style, ...otherProps }: ViewProps) {
     />
   );
 }
-const smallSpacing = useThemeProperty('smallSpacing');
-const borderRadius = useThemeProperty('borderRadius');
+const smallSpacing = getThemeProperty('smallSpacing');
+const borderRadius = getThemeProperty('borderRadius');
 
 const cardStyle = StyleSheet.create({
   card: {

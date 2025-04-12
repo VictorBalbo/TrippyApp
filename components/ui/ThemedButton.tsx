@@ -1,4 +1,4 @@
-import { useThemeColor, useThemeProperty } from '@/hooks/useTheme';
+import { getThemeProperty } from '@/hooks/useTheme';
 import React, { useRef } from 'react';
 import {
   Pressable,
@@ -35,7 +35,6 @@ export const ThemedButton = ({
 }: ButtonProps) => {
   const scaleAnim = useRef(new Animated.Value(1)).current;
   const opacityAnim = useRef(new Animated.Value(1)).current;
-  const pressableColor = useThemeColor('backgroundSoft');
 
   const handlePressIn = () => {
     Animated.parallel([
@@ -106,8 +105,8 @@ export const ThemedButton = ({
     </Pressable>
   );
 };
-const smallSpacing = useThemeProperty('smallSpacing');
-const borderRadius = useThemeProperty('borderRadius');
+const smallSpacing = getThemeProperty('smallSpacing');
+const borderRadius = getThemeProperty('borderRadius');
 const styles = StyleSheet.create({
   pressable: {
     borderRadius: borderRadius,

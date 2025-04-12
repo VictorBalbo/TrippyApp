@@ -15,8 +15,9 @@ export function IconSymbol({
   style?: StyleProp<ViewStyle>;
   weight?: SymbolWeight;
 }) {
+  const defaultColor = useThemeColor('activeTint');
   if (!color) {
-    color = useThemeColor('activeTint');
+    color = defaultColor;
   }
   return (
     <SymbolView

@@ -14,21 +14,21 @@ const MAPPING = {
   'chevron.down': 'chevron-down',
   'chevron.up': 'chevron-up',
   'star.fill': 'star',
-  'plus': 'plus',
-  'trash': 'trash-can-outline',
-  'globe': 'link',
-  'calendar': 'calendar-month',
-  'dollarsign': 'currency-usd',
+  plus: 'plus',
+  trash: 'trash-can-outline',
+  globe: 'link',
+  calendar: 'calendar-month',
+  dollarsign: 'currency-usd',
   'info.circle.fill': 'information',
   'phone.fill': 'phone',
   'map.fill': 'map',
   'clock.fill': 'clock',
   'ticket.fill': 'ticket-confirmation',
   'arrow.right': 'arrow-right',
-  "bed.double.fill": 'bed-king',
-  "airplane.arrival": 'airplane-landing',
-  "airplane.departure": 'airplane-takeoff',
-  "sun.and.horizon.fill": 'weather-sunset',
+  'bed.double.fill': 'bed-king',
+  'airplane.arrival': 'airplane-landing',
+  'airplane.departure': 'airplane-takeoff',
+  'sun.and.horizon.fill': 'weather-sunset',
   'train.side.front.car': 'train',
   'train.side.rear.car': 'train',
   'bus.fill': 'bus',
@@ -58,8 +58,16 @@ export function IconSymbol({
   style?: StyleProp<TextStyle>;
   weight?: SymbolWeight;
 }) {
-  if(!color) {
-    color = useThemeColor('activeTint')
+  const defaultColor = useThemeColor('activeTint');
+  if (!color) {
+    color = defaultColor;
   }
-  return <MaterialIcons color={color} size={size} name={MAPPING[name]} style={style} />;
+  return (
+    <MaterialIcons
+      color={color}
+      size={size}
+      name={MAPPING[name]}
+      style={style}
+    />
+  );
 }

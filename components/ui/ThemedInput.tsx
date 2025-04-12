@@ -1,4 +1,4 @@
-import { useThemeColor, useThemeProperty } from '@/hooks/useTheme';
+import { useThemeColor, getThemeProperty } from '@/hooks/useTheme';
 import React from 'react';
 import { StyleSheet, TextInputProps, TextInput, Platform } from 'react-native';
 
@@ -17,9 +17,9 @@ export const ThemedInput = (props: TextInputProps) => {
   );
 };
 
-const fontSize = useThemeProperty('textSize');
-const borderRadius = useThemeProperty('borderRadius');
-const smallSpacing = useThemeProperty('smallSpacing');
+const fontSize = getThemeProperty('textSize');
+const borderRadius = getThemeProperty('borderRadius');
+const smallSpacing = getThemeProperty('smallSpacing');
 
 const styles = StyleSheet.create({
   input: {

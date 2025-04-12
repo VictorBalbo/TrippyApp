@@ -14,14 +14,18 @@ import Animated, {
 
 import { ThemedView } from '@/components/ui/ThemedView';
 import { LinearGradient, LinearGradientProps } from 'expo-linear-gradient';
-import { useThemeColor } from '@/hooks/useTheme';
+import { useThemeColor, getThemeProperty } from '@/hooks/useTheme';
+import { IconSymbol } from './ui/Icon/IconSymbol';
+import { Colors } from '@/constants/Theme';
+import { PressableView } from './ui/PressableView';
 
 const HEADER_HEIGHT = 250;
 
 type Props = PropsWithChildren<{
+  headerImageUrl: string;
   headerComponent?: ReactNode;
   headerImageGradient?: Partial<LinearGradientProps>;
-  headerImageUrl: string;
+  closeButtonCallback?: () => void;
 }>;
 
 export const BottomSheetView = ({
@@ -29,6 +33,7 @@ export const BottomSheetView = ({
   headerImageUrl,
   headerComponent,
   headerImageGradient,
+  closeButtonCallback,
 }: Props) => {
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollOffset = useScrollViewOffset(scrollRef);
@@ -62,6 +67,13 @@ export const BottomSheetView = ({
       <ThemedView background style={styles.container}>
         <Animated.ScrollView ref={scrollRef} scrollEventThrottle={16}>
           <Animated.View style={[styles.header, headerAnimatedStyle]}>
+            <PressableView
+              style={styles.closeButton}
+              onPress={closeButtonCallback!}
+            >
+              <IconSymbol name="plus" />
+            </PressableView>
+            
             <Image
               source={{ uri: headerImageUrl }}
               style={styles.headerImage}
@@ -85,6 +97,10 @@ export const BottomSheetView = ({
   );
 };
 
+const borderRadius = getThemeProperty('borderRadius');
+const smallSpacing = getThemeProperty('smallSpacing');
+const largeSpacing = getThemeProperty('largeSpacing');
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -94,6 +110,16 @@ const styles = StyleSheet.create({
     height: HEADER_HEIGHT,
     overflow: 'hidden',
     position: 'relative',
+  },
+  closeButton: {
+    position: 'absolute',
+    zIndex: 1,
+    top: largeSpacing,
+    right: largeSpacing,
+    backgroundColor: Colors.black + 'B2',
+    borderRadius: borderRadius * borderRadius,
+    padding: smallSpacing,
+    transform: [{ rotateZ: '45deg' }],
   },
   headerImage: {
     height: HEADER_HEIGHT,

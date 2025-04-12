@@ -22,29 +22,32 @@ export const ThemedText = ({
 }: ThemedTextProps) => {
   let color;
   let typeStyle;
+  const defaultTextColor = useThemeColor('text');
+  const defaultLinkColor = useThemeColor('link');
+  const defaultHelperTextColor = useThemeColor('helperText');
   switch (type) {
     case 'default':
-      color = useThemeColor('text');
+      color = defaultTextColor;
       typeStyle = styles.default;
       break;
     case 'title':
-      color = useThemeColor('text');
+      color = defaultTextColor;
       typeStyle = styles.title;
       break;
     case 'bold':
-      color = useThemeColor('text');
+      color = defaultTextColor;
       typeStyle = styles.semiBold;
       break;
     case 'subtitle':
-      color = useThemeColor('text');
+      color = defaultTextColor;
       typeStyle = styles.subtitle;
       break;
     case 'link':
-      color = useThemeColor('link');
+      color = defaultLinkColor;
       typeStyle = styles.link;
       break;
     case 'small':
-      color = useThemeColor('helperText');
+      color = defaultHelperTextColor;
       typeStyle = styles.small;
       break;
   }

@@ -1,7 +1,7 @@
 import { Activity, Coordinates, DistanceBetweenPlaces } from '@/models';
 import { ThemedView } from './ui/ThemedView';
 import { Image, StyleSheet } from 'react-native';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { isSameDay, utcDate } from '@/utils/dateUtils';
 import { MapsService } from '@/services';
 import { decode as decodePolyline } from '@googlemaps/polyline-codec';
@@ -11,7 +11,7 @@ import {
   getDisplayDistanceFromMeters,
   getDisplayDurationFromSeconds,
 } from '@/utils/numberFormat';
-import { useThemeColor, useThemeProperty } from '@/hooks/useTheme';
+import { useThemeColor, getThemeProperty } from '@/hooks/useTheme';
 import { ExternalLink } from './ExternalLink';
 import { sanitizeUrl } from '@/utils/urlSanitize';
 import { IconSymbol } from './ui/Icon/IconSymbol';
@@ -74,7 +74,6 @@ export const ItineraryView = ({
       for (let i = 1; i < dayActivities.length; i++) {
         const previousActivity = dayActivities[i - 1];
         const currentActivity = dayActivities[i];
-        // const distance = getDistanceBetween(previousActivity, currentActivity);
         const distance =
           placesDistances[
             `${previousActivity.place.id}:${currentActivity.place.id}`
@@ -97,7 +96,6 @@ export const ItineraryView = ({
               };
               return coordinates;
             });
-            // setDistanceBetween(distance);
             placesDistances[
               `${previousActivity.place.id}:${currentActivity.place.id}`
             ] = distance;
@@ -202,8 +200,8 @@ export const ItineraryView = ({
     return <ThemedView></ThemedView>;
   }
 };
-const smallSpacing = useThemeProperty('smallSpacing');
-const borderRadius = useThemeProperty('borderRadius');
+const smallSpacing = getThemeProperty('smallSpacing');
+const borderRadius = getThemeProperty('borderRadius');
 const styles = StyleSheet.create({
   card: {
     gap: smallSpacing,

@@ -1,9 +1,9 @@
-import { ActivityIndicator, Image, StyleSheet } from 'react-native';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 import { ItineraryView } from '@/components/ItineraryView';
 import { MapsService } from '@/services';
-import { useThemeProperty } from '@/hooks/useTheme';
+import { getThemeProperty } from '@/hooks/useTheme';
 import { useTripContext } from '@/hooks/useTrip';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ThemedView } from '@/components/ui/ThemedView';
 import { TextType, ThemedText } from '@/components/ui/ThemedText';
 import { isSameDay, utcDate } from '@/utils/dateUtils';
@@ -12,7 +12,12 @@ import { IconSymbol } from '@/components/ui/Icon/IconSymbol';
 import { ExternalLink } from '@/components/ExternalLink';
 import { sanitizeUrl } from '@/utils/urlSanitize';
 import { useEffect, useState } from 'react';
-import { DistanceBetweenPlaces, Transportation, Weather } from '@/models';
+import {
+  Destination,
+  DistanceBetweenPlaces,
+  Transportation,
+  Weather,
+} from '@/models';
 import { getDisplayDurationFromSeconds } from '@/utils/numberFormat';
 import { getMapsDirectionLink } from '@/utils/mapsUtils';
 import { TripService } from '@/services/TripService';
@@ -25,8 +30,9 @@ const DestinationDetails = () => {
   const { destinations, transportations } = useTripContext();
   const { destinationId } = useLocalSearchParams();
   const { fitDestination } = useMapContext();
+  const router = useRouter();
 
-  const destination = destinations?.find((d) => d.id === destinationId);
+  const [destination, setDestination] = useState<Destination>();
   const [arrival, setArrival] = useState<Transportation>();
   const [departure, setDeparture] = useState<Transportation>();
   const [arrivalDistanceToHome, setArrivalDistanceToHome] =
@@ -36,27 +42,32 @@ const DestinationDetails = () => {
   const [weather, setWeather] = useState<Weather>();
 
   useEffect(() => {
-    if (!destination) {
+    const currentDestination = destinations?.find(
+      (d) => d.id === destinationId
+    );
+    setDestination(currentDestination);
+
+    if (!currentDestination) {
       return;
     }
 
     const arrivalTransport = transportations?.find(
       (t) =>
-        destination?.placeId === t.destinationId &&
-        isSameDay(destination.startDate, t.endDate)
+        currentDestination?.placeId === t.destinationId &&
+        isSameDay(currentDestination.startDate, t.endDate)
     );
     setArrival(arrivalTransport);
     const departureTransport = transportations?.find(
       (t) =>
-        destination?.placeId === t.originId &&
-        isSameDay(destination.endDate, t.startDate)
+        currentDestination?.placeId === t.originId &&
+        isSameDay(currentDestination.endDate, t.startDate)
     );
     setDeparture(departureTransport);
 
-    fitDestination(destination);
+    fitDestination(currentDestination);
     fetchArrivalDestinationDistances(arrivalTransport, departureTransport);
-    fetchWeatherAverages(destination.id);
-  }, [destinationId]);
+    fetchWeatherAverages(currentDestination.id);
+  }, [destinationId, destinations, transportations]);
 
   let loadingArrivalDestinationDistances = false;
   const fetchArrivalDestinationDistances = async (
@@ -133,6 +144,10 @@ const DestinationDetails = () => {
     }
   };
 
+  const closeButtonCallback = () => {
+    router.back();
+  };
+
   if (!destination) {
     return <ActivityIndicator />;
   }
@@ -142,6 +157,7 @@ const DestinationDetails = () => {
       headerImageUrl={MapsService.getPhotoForPlace(
         destination.place.images ?? []
       )}
+      closeButtonCallback={closeButtonCallback}
       headerComponent={
         <ThemedView style={styles.headerTitle}>
           <ThemedText type={TextType.Bold}>
@@ -314,8 +330,8 @@ const DestinationDetails = () => {
   );
 };
 
-const smallSpacing = useThemeProperty('smallSpacing');
-const largeSpacing = useThemeProperty('largeSpacing');
+const smallSpacing = getThemeProperty('smallSpacing');
+const largeSpacing = getThemeProperty('largeSpacing');
 
 const styles = StyleSheet.create({
   headerTitle: {

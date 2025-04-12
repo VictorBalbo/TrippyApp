@@ -2,7 +2,7 @@ import { CardView } from '@/components/ui/CardView';
 import { PressableView } from '@/components/ui/PressableView';
 import { TextType, ThemedText } from '@/components/ui/ThemedText';
 import { ThemedView } from '@/components/ui/ThemedView';
-import { useThemeColor, useThemeProperty } from '@/hooks/useTheme';
+import { useThemeColor, getThemeProperty } from '@/hooks/useTheme';
 import { useTripContext } from '@/hooks/useTrip';
 import { Destination } from '@/models';
 import { utcDate } from '@/utils/dateUtils';
@@ -73,17 +73,13 @@ export default function index() {
   );
 }
 
-const smallSpacing = useThemeProperty('smallSpacing');
-const largeSpacing = useThemeProperty('largeSpacing');
+const smallSpacing = getThemeProperty('smallSpacing');
+const largeSpacing = getThemeProperty('largeSpacing');
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: largeSpacing,
-  },
-  text: {
-    fontSize: 18,
-    fontWeight: 'bold',
   },
   destinationsCard: {
     gap: smallSpacing,

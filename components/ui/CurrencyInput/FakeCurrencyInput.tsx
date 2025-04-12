@@ -6,11 +6,9 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-
 import { CurrencyInput, CurrencyInputProps } from './CurrencyInput';
 import TextWithCursor from './TextWithCursor';
 import { useState } from 'react';
-import { useThemeProperty } from '@/hooks/useTheme';
 
 export type FakeCurrencyInputProps = CurrencyInputProps & {
   containerStyle?: StyleProp<ViewStyle>;
@@ -76,8 +74,6 @@ const FakeCurrencyInput = (props: FakeCurrencyInputProps) => {
     </View>
   );
 };
-
-const fontSize = useThemeProperty('textSize');
 
 const styles = StyleSheet.create({
   inputContainer: {

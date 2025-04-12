@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { useState } from 'react';
-import { useThemeColor, useThemeProperty } from '@/hooks/useTheme';
+import { useThemeColor, getThemeProperty } from '@/hooks/useTheme';
 
 const DatePicker = () => {
   const [date, setDate] = useState<Date>(new Date());
@@ -16,8 +16,8 @@ const DatePicker = () => {
     />
   );
 };
-const borderRadius = useThemeProperty('borderRadius');
-const smallSpacing = useThemeProperty('smallSpacing');
+const borderRadius = getThemeProperty('borderRadius');
+const smallSpacing = getThemeProperty('smallSpacing');
 
 const styles = StyleSheet.create({
   webDateTime: {

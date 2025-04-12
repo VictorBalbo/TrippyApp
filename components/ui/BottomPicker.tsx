@@ -11,7 +11,7 @@ import {
 import { ThemedView } from './ThemedView';
 import { ThemedText } from './ThemedText';
 import { ButtonType, ThemedButton } from './ThemedButton';
-import { useThemeColor, useThemeProperty } from '@/hooks/useTheme';
+import { useThemeColor, getThemeProperty } from '@/hooks/useTheme';
 import { HapticService } from '@/services';
 import { SFSymbol } from 'expo-symbols';
 
@@ -63,7 +63,7 @@ export const BottomPicker = ({
   const borderColor = useThemeColor('border');
 
   return (
-    <ThemedView style={[buttonStyle]}>
+    <ThemedView style={buttonStyle}>
       {/* Select Button */}
       <ThemedButton
         type={ButtonType.Secondary}
@@ -73,7 +73,7 @@ export const BottomPicker = ({
           placeholder
         }
         icon={buttonIcon}
-        style={[buttonStyle]}
+        style={buttonStyle}
       />
 
       {/* Bottom Modal Picker */}
@@ -111,9 +111,9 @@ export const BottomPicker = ({
   );
 };
 
-const borderRadius = useThemeProperty('borderRadius');
-const smallSpacing = useThemeProperty('smallSpacing');
-const largeSpacing = useThemeProperty('largeSpacing');
+const borderRadius = getThemeProperty('borderRadius');
+const smallSpacing = getThemeProperty('smallSpacing');
+const largeSpacing = getThemeProperty('largeSpacing');
 
 const styles = StyleSheet.create({
   overlay: {

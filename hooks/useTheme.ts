@@ -10,6 +10,6 @@ export function useThemeColor(propertyName: keyof ColorScheme) {
   const currentTheme = useColorScheme() ?? 'dark';
   return Theme[currentTheme][propertyName];
 }
-export function useThemeProperty(propertyName: keyof BaseScheme) {
+export function getThemeProperty(propertyName: keyof BaseScheme) {
   return Theme.base[propertyName];
 }

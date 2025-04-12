@@ -1,5 +1,5 @@
 import { StyleProp, StyleSheet, ViewStyle } from 'react-native';
-import { useThemeColor, useThemeProperty } from '@/hooks/useTheme';
+import { useThemeColor, getThemeProperty } from '@/hooks/useTheme';
 import { ThemedView } from './ThemedView';
 import { BottomPicker } from './BottomPicker';
 import FakeCurrencyInput from './CurrencyInput/FakeCurrencyInput';
@@ -75,9 +75,8 @@ export const InputMoney = ({
   );
 };
 
-const fontSize = useThemeProperty('textSize');
-const borderRadius = useThemeProperty('borderRadius');
-const smallSpacing = useThemeProperty('smallSpacing');
+const fontSize = getThemeProperty('textSize');
+const borderRadius = getThemeProperty('borderRadius');
 
 const styles = StyleSheet.create({
   inputMoneyContainer: {
@@ -89,18 +88,6 @@ const styles = StyleSheet.create({
     borderRadius: 0,
     borderTopLeftRadius: borderRadius,
     borderBottomLeftRadius: borderRadius,
-  },
-  input: {
-    width: '100%',
-    flex: 1,
-    fontSize,
-    lineHeight: fontSize,
-    textAlign: 'center',
-    textAlignVertical: 'bottom',
-    paddingLeft: smallSpacing,
-    borderTopRightRadius: borderRadius,
-    borderBottomRightRadius: borderRadius,
-    borderLeftWidth: 1,
   },
   fakeInputContainer: {
     flex: 1,
