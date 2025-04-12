@@ -17,11 +17,6 @@ import { sanitizeUrl } from '@/utils/urlSanitize';
 import { IconSymbol } from './ui/Icon/IconSymbol';
 import { getMapsDirectionLink } from '@/utils/mapsUtils';
 
-type DateItinerary = {
-  activities: Activity[];
-  distance: number;
-};
-
 type ItineraryViewProps = {
   activities: Activity[];
   startDate: Date;
@@ -32,30 +27,27 @@ export const ItineraryView = ({
   startDate,
   endDate,
 }: ItineraryViewProps) => {
-  const [dateItinerary, setDateItinerary] =
-    useState<Record<string, DateItinerary>>();
+  const [activitiesByDate, seActivitiesByDate] = useState<
+    Record<string, Activity[]>
+  >({});
+  const [distanceByDate, setDistanceByDate] = useState<Record<string, number>>(
+    {}
+  );
   const [distancesBetweenPlaces, setDistancesBetweenPlaces] = useState<
     Record<string, DistanceBetweenPlaces>
   >({});
   let mapWalkingPaths: DistanceBetweenPlaces[];
 
   useEffect(() => {
-    fetchActivitiesDistances();
+    groupActivitiesByDate();
   }, [activities, startDate, endDate]);
 
-  const fetchActivitiesDistances = async () => {
+  const groupActivitiesByDate = async () => {
     mapWalkingPaths = [];
     const daysDiff = utcDate(endDate).diff(utcDate(startDate), 'day');
-    const itinerary: Record<string, DateItinerary> = {};
-    const placesDistances: Record<string, DistanceBetweenPlaces> =
-      distancesBetweenPlaces;
-
     const noDateActivities = activities.filter((a) => !a.dateTime);
-    if (noDateActivities.length || itinerary['No Date']) {
-      itinerary['No Date'] = {
-        activities: noDateActivities,
-        distance: 0,
-      };
+    if (noDateActivities.length) {
+      seActivitiesByDate((i) => ({ ...i, ['No Date']: noDateActivities }));
     }
 
     for (let i = 0; i <= daysDiff; i++) {
@@ -66,47 +58,61 @@ export const ItineraryView = ({
         .sort(
           (a, b) => (a.dateTime?.getTime() ?? 0) - (b.dateTime?.getTime() ?? 0)
         );
-      itinerary[dayStr] = {
-        distance: 0,
-        activities: dayActivities,
-      };
+      seActivitiesByDate((i) => ({ ...i, [dayStr]: dayActivities }));
 
       for (let i = 1; i < dayActivities.length; i++) {
         const previousActivity = dayActivities[i - 1];
         const currentActivity = dayActivities[i];
-        const distance =
-          placesDistances[
-            `${previousActivity.place.id}:${currentActivity.place.id}`
-          ];
-        if (distance) {
-          mapWalkingPaths.push(distance);
-          itinerary[dayStr].distance += distance.walking.distance;
-        } else {
-          const distance = await MapsService.getDistaceBetweenPlaces(
-            previousActivity.place.id,
-            currentActivity.place.id
-          );
-          if (distance) {
-            distance.walking.decodedPolyline = decodePolyline(
-              distance.walking.polyline
-            ).map((c) => {
-              const coordinates: Coordinates = {
-                lat: c[0],
-                lng: c[1],
-              };
-              return coordinates;
-            });
-            placesDistances[
-              `${previousActivity.place.id}:${currentActivity.place.id}`
-            ] = distance;
-            mapWalkingPaths.push(distance);
-            itinerary[dayStr].distance += distance.walking.distance;
-          }
-        }
+        fetchActivitiesDistances(previousActivity, currentActivity, dayStr);
       }
     }
-    setDateItinerary(itinerary);
-    setDistancesBetweenPlaces(placesDistances);
+  };
+
+  const fetchActivitiesDistances = async (
+    activity1: Activity,
+    activity2: Activity,
+    dateStr: string
+  ) => {
+    const distance = getDistanceBetween(activity1, activity2);
+    if (distance) {
+      mapWalkingPaths.push(distance);
+      setDistanceByDate((distances) => {
+        const dateDistance = (distances[dateStr] ?? 0) + distance.walking.distance;
+        return {
+          ...distances,
+          [dateStr]: dateDistance,
+        };
+      });
+    }
+    if (!distance) {
+      const distance = await MapsService.getDistaceBetweenPlaces(
+        activity1.place.id,
+        activity2.place.id
+      );
+      if (distance) {
+        distance.walking.decodedPolyline = decodePolyline(
+          distance.walking.polyline
+        ).map((c) => {
+          const coordinates: Coordinates = {
+            lat: c[0],
+            lng: c[1],
+          };
+          return coordinates;
+        });
+        mapWalkingPaths.push(distance);
+        setDistancesBetweenPlaces((placesDistances) => {
+          const distaceKey = `${activity1.place.id}:${activity2.place.id}`;
+          return { ...placesDistances, [distaceKey]: distance };
+        });
+        setDistanceByDate((distances) => {
+          const dateDistance = (distances[dateStr] ?? 0) + distance.walking.distance;
+          return {
+            ...distances,
+            [dateStr]: dateDistance,
+          };
+        });
+      }
+    }
   };
 
   const getDistanceBetween = (activity1?: Activity, activity2?: Activity) =>
@@ -115,90 +121,88 @@ export const ItineraryView = ({
   const backgroundColor = useThemeColor('backgroundAccent');
   const borderColor = useThemeColor('border');
   const linkColor = useThemeColor('link');
-  if (dateItinerary) {
-    return (
-      <CardView style={styles.card}>
-        {Object.entries(dateItinerary).map(([date, itinerary], i) => (
-          <ThemedView
-            key={date}
-            style={[i !== 0 ? styles.itineraryDate : '', { borderColor }]}
-          >
-            <ThemedText type={TextType.Subtitle}>{date}</ThemedText>
-            <ThemedText type={TextType.Small}>
-              Total waliking distance:{' '}
-              {getDisplayDistanceFromMeters(itinerary.distance)}
-            </ThemedText>
-            {itinerary.activities.map((a, i) => (
-              <ThemedView key={a.id}>
-                <ThemedView style={[styles.activity, { backgroundColor }]}>
-                  <ThemedView style={styles.activityInfo}>
-                    <ThemedView>
-                      <ThemedText
-                        type={TextType.Bold}
-                        ellipsizeMode="tail"
-                        numberOfLines={2}
-                      >
-                        {a.place.name}
-                      </ThemedText>
-                      {a.place.categories?.length && (
-                        <ThemedText type={TextType.Small}>
-                          {a.place.categories[0]}
-                        </ThemedText>
-                      )}
-                    </ThemedView>
-                    {a.dateTime && (
-                      <ThemedText type={TextType.Default}>
-                        {utcDate(a.dateTime).format('ddd, DD/MM - HH:mm')}
-                      </ThemedText>
-                    )}
-                    {(a.website || a.place.website) && (
-                      <ExternalLink
-                        href={(a.website || a.place.website)!}
-                        ellipsizeMode="tail"
-                        numberOfLines={1}
-                      >
-                        {sanitizeUrl((a.website || a.place.website)!)}
-                      </ExternalLink>
-                    )}
-                  </ThemedView>
-                  <Image
-                    source={{
-                      uri: MapsService.getPhotoForPlace(a.place.images ?? []),
-                    }}
-                    style={styles.activityImage}
-                  />
-                </ThemedView>
-                {getDistanceBetween(a, itinerary.activities[i + 1]) && (
-                  <ThemedView style={styles.activityDistanceToNext}>
-                    <IconSymbol name="figure.walk" color={linkColor} />
-                    <ExternalLink
-                      href={getMapsDirectionLink(
-                        a.place,
-                        itinerary.activities[i + 1].place,
-                        'walking'
-                      )}
-                    >
-                      {getDisplayDistanceFromMeters(
-                        getDistanceBetween(a, itinerary.activities[i + 1])
-                          .walking.distance
-                      )}
-                      {' · '}
-                      {getDisplayDurationFromSeconds(
-                        getDistanceBetween(a, itinerary.activities[i + 1])
-                          .walking.duration
-                      )}
-                    </ExternalLink>
-                  </ThemedView>
-                )}
-              </ThemedView>
-            ))}
-          </ThemedView>
-        ))}
-      </CardView>
-    );
-  } else {
+  if (Object.keys(activitiesByDate).length === 0) {
     return <ThemedView></ThemedView>;
   }
+
+  return (
+    <CardView style={styles.card}>
+      {Object.entries(activitiesByDate).map(([date, activities], i) => (
+        <ThemedView
+          key={date}
+          style={[i !== 0 ? styles.itineraryDate : '', { borderColor }]}
+        >
+          <ThemedText type={TextType.Subtitle}>{date}</ThemedText>
+          <ThemedText type={TextType.Small}>
+            Total waliking distance:{' '}
+            {getDisplayDistanceFromMeters(distanceByDate[date] ?? 0)}
+          </ThemedText>
+          {activities.map((a, i) => (
+            <ThemedView key={a.id}>
+              <ThemedView style={[styles.activity, { backgroundColor }]}>
+                <ThemedView style={styles.activityInfo}>
+                  <ThemedView>
+                    <ThemedText
+                      type={TextType.Bold}
+                      ellipsizeMode="tail"
+                      numberOfLines={2}
+                    >
+                      {a.place.name}
+                    </ThemedText>
+                    {a.place.categories?.length && (
+                      <ThemedText type={TextType.Small}>
+                        {a.place.categories[0]}
+                      </ThemedText>
+                    )}
+                  </ThemedView>
+                  {a.dateTime && (
+                    <ThemedText type={TextType.Default}>
+                      {utcDate(a.dateTime).format('ddd, DD/MM - HH:mm')}
+                    </ThemedText>
+                  )}
+                  {(a.website || a.place.website) && (
+                    <ExternalLink
+                      href={(a.website || a.place.website)!}
+                      ellipsizeMode="tail"
+                      numberOfLines={1}
+                    >
+                      {sanitizeUrl((a.website || a.place.website)!)}
+                    </ExternalLink>
+                  )}
+                </ThemedView>
+                <Image
+                  source={{
+                    uri: MapsService.getPhotoForPlace(a.place.images ?? []),
+                  }}
+                  style={styles.activityImage}
+                />
+              </ThemedView>
+              {getDistanceBetween(a, activities[i + 1]) && (
+                <ThemedView style={styles.activityDistanceToNext}>
+                  <IconSymbol name="figure.walk" color={linkColor} />
+                  <ExternalLink
+                    href={getMapsDirectionLink(
+                      a.place,
+                      activities[i + 1].place,
+                      'walking'
+                    )}
+                  >
+                    {getDisplayDistanceFromMeters(
+                      getDistanceBetween(a, activities[i + 1]).walking.distance
+                    )}
+                    {' · '}
+                    {getDisplayDurationFromSeconds(
+                      getDistanceBetween(a, activities[i + 1]).walking.duration
+                    )}
+                  </ExternalLink>
+                </ThemedView>
+              )}
+            </ThemedView>
+          ))}
+        </ThemedView>
+      ))}
+    </CardView>
+  );
 };
 const smallSpacing = getThemeProperty('smallSpacing');
 const borderRadius = getThemeProperty('borderRadius');

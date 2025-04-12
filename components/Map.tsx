@@ -44,7 +44,7 @@ const Map = () => {
     if (mapRef.current && markers.length) {
       if (markers.length === 1) {
         mapRef.current.animateToRegion({
-          latitude: markers[0].coordinates.lat,
+          latitude: markers[0].coordinates.lat - 0.0075,
           longitude: markers[0].coordinates.lng,
           latitudeDelta: 0.02,
           longitudeDelta: 0.02,
@@ -128,7 +128,6 @@ const Map = () => {
           <Marker
             key={t.destinationTerminalId}
             title={t.destinationTerminal.name}
-
             coordinate={{
               latitude: t.destinationTerminal.coordinates.lat,
               longitude: t.destinationTerminal.coordinates.lng,
@@ -145,8 +144,8 @@ const Map = () => {
               latitude: c.lat,
               longitude: c.lng,
             }))}
-            fillColor='blue'
-            strokeColor='blue'
+            fillColor="blue"
+            strokeColor="blue"
             strokeWidth={2}
             geodesic={true}
           />

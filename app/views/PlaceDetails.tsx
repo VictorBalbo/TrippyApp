@@ -5,7 +5,7 @@ import { ThemedView } from '@/components/ui/ThemedView';
 import { MapsService } from '@/services';
 import { IconSymbol } from '@/components/ui/Icon/IconSymbol';
 import { Colors } from '@/constants/Theme';
-import { getThemeProperty } from '@/hooks/useTheme';
+import { getThemeProperty, useThemeColor } from '@/hooks/useTheme';
 import { ButtonType, ThemedButton } from '@/components/ui/ThemedButton';
 import { CardView } from '@/components/ui/CardView';
 import DatePicker from '@/components/ui/DatePicker/DatePicker';
@@ -26,6 +26,7 @@ const PlaceDetails = () => {
   const { fitPlace } = useMapContext();
   const { activities, destinations } = useTripContext();
   const router = useRouter();
+  const background = useThemeColor('backgroundSoft')
 
   const [place, setplace] = useState<Place>();
   const [loading, setLoading] = useState<boolean>(false);
@@ -64,17 +65,21 @@ const PlaceDetails = () => {
   }, [placeId]);
 
   if (!place || loading) {
-    return <ActivityIndicator />
+    return <ActivityIndicator />;
   }
 
   const closeButtonCallback = () => {
     router.back();
-  }
+  };
 
   return (
     <BottomSheetView
       headerImageUrl={MapsService.getPhotoForPlace(place.images ?? [])}
       closeButtonCallback={closeButtonCallback}
+      headerImageGradient={{
+        colors: ['transparent', background],
+        start: { x: 0, y: 0.8 },
+      }}
     >
       <ThemedView softBackground style={styles.header}>
         <ThemedText type={TextType.Title}>{place.name}</ThemedText>
@@ -155,7 +160,7 @@ const PlaceDetails = () => {
           </CardView>
         )}
 
-        {(currentActivity && needBooking) && (
+        {currentActivity && needBooking && (
           <CardView style={styles.inlineTitleInput}>
             <ThemedView style={styles.iconTitle}>
               <IconSymbol name="ticket.fill" color={Colors.blue} />
