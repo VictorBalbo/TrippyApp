@@ -145,6 +145,7 @@ const DestinationDetails = () => {
   };
 
   const closeButtonCallback = () => {
+    fitDestination(undefined);
     router.back();
   };
 

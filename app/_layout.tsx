@@ -7,11 +7,8 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { TripProvider } from '@/hooks/useTrip';
 import Map from '@/components/Map';
-import BottomSheet, {
-  BottomSheetScrollView,
-  BottomSheetView,
-} from '@gorhom/bottom-sheet';
-import { Platform, StyleSheet, View } from 'react-native';
+import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import { Platform, StyleSheet } from 'react-native';
 import { MapProvider } from '@/hooks/useMapContext';
 import { ThemedView } from '@/components/ui/ThemedView';
 import { useThemeColor, getThemeProperty } from '@/hooks/useTheme';

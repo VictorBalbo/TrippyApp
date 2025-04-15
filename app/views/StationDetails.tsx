@@ -6,36 +6,29 @@ import { MapsService } from '@/services';
 import { IconSymbol } from '@/components/ui/Icon/IconSymbol';
 import { Colors } from '@/constants/Theme';
 import { getThemeProperty, useThemeColor } from '@/hooks/useTheme';
-import { ButtonType, ThemedButton } from '@/components/ui/ThemedButton';
 import { CardView } from '@/components/ui/CardView';
-import DatePicker from '@/components/ui/DatePicker/DatePicker';
-import { InputMoney } from '@/components/ui/InputMoney';
 import { useEffect, useState } from 'react';
 import { ExternalLink } from '@/components/ExternalLink';
 import HorizontalDivider from '@/components/ui/HorizontalDivider';
 import { sanitizeUrl } from '@/utils/urlSanitize';
 import { Collapsible } from '@/components/ui/Collapsible';
-import { ThemedSwitch } from '@/components/ui/ThemedSwitch';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Activity, Destination, Place } from '@/models';
+import { Place, Transportation } from '@/models';
 import { useMapContext } from '@/hooks/useMapContext';
 import { useTripContext } from '@/hooks/useTrip';
+import { utcDate } from '@/utils/dateUtils';
 
-const PlaceDetails = () => {
+const StationDetails = () => {
   const { placeId } = useLocalSearchParams<{ placeId: string }>();
   const { fitPlace } = useMapContext();
-  const { activities, destinations } = useTripContext();
+  const { transportations } = useTripContext();
   const router = useRouter();
   const background = useThemeColor('backgroundSoft');
 
   const [place, setplace] = useState<Place>();
   const [loading, setLoading] = useState<boolean>(false);
-  const [currentActivity, setCurrentActivity] = useState<Activity>();
-  const [currentDestination, setCurrentDestination] = useState<Destination>();
-
-  const [needBooking, setNeedBooking] = useState(false);
-  const [booked, setBooked] = useState(false);
-  const [date, setDate] = useState<Date>();
+  const [arrivals, setArrivals] = useState<Transportation[]>([]);
+  const [departures, setDepartures] = useState<Transportation[]>([]);
 
   const fetchPlace = async () => {
     if (placeId && place?.id !== placeId && !loading) {
@@ -43,13 +36,17 @@ const PlaceDetails = () => {
       try {
         const responsePlace = await MapsService.getDetaisForPlaceId(placeId);
         setplace(responsePlace);
-        setCurrentActivity(activities?.find((a) => a.placeId === placeId));
-        setDate(currentActivity?.dateTime);
-        setCurrentDestination(
-          destinations?.find((d) =>
-            d.activities?.find((a) => a.placeId === placeId)
-          )
+
+        const stationArrivals = transportations?.filter(
+          (t) => t.originTerminalId === placeId
         );
+        setArrivals(stationArrivals ?? []);
+
+        const stationDepartures = transportations?.filter(
+          (t) => t.destinationTerminalId === placeId
+        );
+        setDepartures(stationDepartures ?? []);
+
         if (responsePlace) {
           fitPlace(responsePlace);
         }
@@ -93,84 +90,45 @@ const PlaceDetails = () => {
             <ThemedText type={TextType.Bold}>{place.rating} / 5</ThemedText>
           </ThemedView>
         )}
-        <ThemedView style={styles.headerActions}>
-          {currentActivity && (
-            <ThemedButton
-              title="Remove"
-              icon="trash"
-              type={ButtonType.Delete}
-              onPress={() => console.log('add')}
-              style={styles.actionButton}
-            />
-          )}
-          {!currentActivity && (
-            <ThemedButton
-              title="Add"
-              icon="plus"
-              onPress={() => console.log('add')}
-              style={styles.actionButton}
-            />
-          )}
-          <ThemedButton
-            title="Go To Website"
-            icon="globe"
-            type={ButtonType.Secondary}
-            onPress={() => console.log('web')}
-            style={styles.actionButton}
-          />
-        </ThemedView>
       </ThemedView>
       <ThemedView background style={styles.body}>
-        {currentActivity && (
-          <CardView style={styles.inlineTitleInput}>
+        {arrivals.length > 0 && (
+          <CardView style={styles.infoCard}>
             <ThemedView style={styles.iconTitle}>
-              <IconSymbol name="calendar" color={Colors.blue} />
-              <ThemedText type={TextType.Bold}>Date</ThemedText>
+              <IconSymbol name="airplane.arrival" color={Colors.blue} />
+              <ThemedText type={TextType.Bold}>Arrivals</ThemedText>
             </ThemedView>
-            <DatePicker
-              value={date ?? currentDestination!.startDate}
-              onChange={(_, date) => setDate(date)}
-              minimumDate={currentDestination!.startDate}
-              maximumDate={currentDestination!.endDate}
-            />
-          </CardView>
-        )}
-        {currentActivity && (
-          <CardView style={styles.inlineTitleInput}>
-            <ThemedView style={styles.iconTitle}>
-              <IconSymbol name="dollarsign" color={Colors.blue} />
-              <ThemedText type={TextType.Bold}>Price</ThemedText>
-            </ThemedView>
-            <InputMoney
-              model={currentActivity.price}
-              onValueChange={(price) => (currentActivity.price = price)}
-              style={{ maxWidth: 200, flex: 1 }}
-            />
-          </CardView>
-        )}
-        {currentActivity && (
-          <CardView style={styles.inlineTitleInput}>
-            <ThemedView style={styles.iconTitle}>
-              <IconSymbol name="ticket.fill" color={Colors.blue} />
-              <ThemedText type={TextType.Bold}>Needs Booking</ThemedText>
-            </ThemedView>
-            <ThemedSwitch
-              value={needBooking}
-              onValueChange={(val) => setNeedBooking(val)}
-            />
+            {arrivals.map((a, i) => (
+              <ThemedView key={a.id}>
+                {i !== 0 && <HorizontalDivider />}
+                <ThemedText>
+                  {a.company} {a.number}
+                </ThemedText>
+                <ThemedText>
+                  {utcDate(a.startDate).format('ddd, DD/MM HH:mm')}
+                </ThemedText>
+              </ThemedView>
+            ))}
           </CardView>
         )}
 
-        {currentActivity && needBooking && (
-          <CardView style={styles.inlineTitleInput}>
+        {departures.length > 0 && (
+          <CardView style={styles.infoCard}>
             <ThemedView style={styles.iconTitle}>
-              <IconSymbol name="ticket.fill" color={Colors.blue} />
-              <ThemedText type={TextType.Bold}>Booked</ThemedText>
+              <IconSymbol name="airplane.departure" color={Colors.blue} />
+              <ThemedText type={TextType.Bold}>Departures</ThemedText>
             </ThemedView>
-            <ThemedSwitch
-              value={booked}
-              onValueChange={(val) => setBooked(val)}
-            />
+            {departures.map((a, i) => (
+              <ThemedView key={a.id}>
+                {i !== 0 && <HorizontalDivider />}
+                <ThemedText>
+                  {a.company} {a.number}
+                </ThemedText>
+                <ThemedText>
+                  {utcDate(a.startDate).format('ddd, DD/MM HH:mm')}
+                </ThemedText>
+              </ThemedView>
+            ))}
           </CardView>
         )}
 
@@ -264,21 +222,9 @@ const styles = StyleSheet.create({
     gap: smallSpacing,
     paddingVertical: smallSpacing,
   },
-  headerActions: {
-    flexDirection: 'row',
-    width: '100%',
-    gap: largeSpacing,
-  },
-  actionButton: {
-    flex: 1,
-  },
   body: {
     padding: largeSpacing,
     gap: largeSpacing,
-  },
-  inlineTitleInput: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
   },
   iconTitle: {
     flexDirection: 'row',
@@ -291,4 +237,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PlaceDetails;
+export default StationDetails;

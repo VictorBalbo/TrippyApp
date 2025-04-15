@@ -2,9 +2,10 @@ import { Destination, Place } from '@/models';
 import { createContext, useState, ReactNode, useContext } from 'react';
 
 interface MapContextType {
-  fitDestination: (destination: Destination) => void;
-  fitPlace: (place: Place) => void;
-  markers: Place[];
+  fitDestination: (destination?: Destination) => void;
+  fitPlace: (place?: Place) => void;
+  centeredMarkers: Place[];
+  selectedMarker?: Place;
 }
 const MapContext = createContext<MapContextType | undefined>(undefined);
 
@@ -12,9 +13,15 @@ interface PlaceProviderProps {
   children: ReactNode;
 }
 export const MapProvider = ({ children }: PlaceProviderProps) => {
-  const [markers, setMarkers] = useState<Place[]>([]);
+  const [centeredMarkers, setCenteredMarkers] = useState<Place[]>([]);
+  const [selectedMarker, setSelectedMarker] = useState<Place>();
 
-  const fitDestination = (destination: Destination) => {
+  const fitDestination = (destination?: Destination) => {
+    if (!destination) {
+      setCenteredMarkers([]);
+      setSelectedMarker(undefined);
+      return;
+    }
     const markers = [
       ...(destination.activities?.map((a) => a.place) ?? []),
       destination.place,
@@ -22,16 +29,24 @@ export const MapProvider = ({ children }: PlaceProviderProps) => {
     if (destination.housing) {
       markers.push(destination.housing.place);
     }
-    setMarkers(markers);
+    setCenteredMarkers(markers);
+    setSelectedMarker(destination.place);
   };
 
-  const fitPlace = (place: Place) => {
-    const markers = [place];
-    setMarkers(markers);
+  const fitPlace = (place?: Place) => {
+    if (place) {
+      setCenteredMarkers([place]);
+      setSelectedMarker(place);
+    } else {
+      setCenteredMarkers([]);
+      setSelectedMarker(undefined);
+    }
   };
 
   return (
-    <MapContext.Provider value={{ fitDestination, fitPlace, markers }}>
+    <MapContext.Provider
+      value={{ fitDestination, fitPlace, centeredMarkers, selectedMarker }}
+    >
       {children}
     </MapContext.Provider>
   );

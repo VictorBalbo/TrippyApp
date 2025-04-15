@@ -10,8 +10,8 @@ export interface Transportation {
   destinationTerminal: Place
   path: Coordinates[]
   type: TransportTypes
-  startDate?: Date
-  endDate?: Date
+  startDate: Date
+  endDate: Date
   price: Price
   company?: string
   number?: string

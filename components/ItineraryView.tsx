@@ -1,6 +1,6 @@
 import { Activity, Coordinates, DistanceBetweenPlaces } from '@/models';
 import { ThemedView } from './ui/ThemedView';
-import { Image, StyleSheet } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 import { useEffect, useState } from 'react';
 import { isSameDay, utcDate } from '@/utils/dateUtils';
 import { MapsService } from '@/services';
@@ -13,9 +13,10 @@ import {
 } from '@/utils/numberFormat';
 import { useThemeColor, getThemeProperty } from '@/hooks/useTheme';
 import { ExternalLink } from './ExternalLink';
-import { sanitizeUrl } from '@/utils/urlSanitize';
 import { IconSymbol } from './ui/Icon/IconSymbol';
 import { getMapsDirectionLink } from '@/utils/mapsUtils';
+import { Colors } from '@/constants/Theme';
+import { useRouter } from 'expo-router';
 
 type ItineraryViewProps = {
   activities: Activity[];
@@ -27,6 +28,7 @@ export const ItineraryView = ({
   startDate,
   endDate,
 }: ItineraryViewProps) => {
+  const router = useRouter();
   const [activitiesByDate, seActivitiesByDate] = useState<
     Record<string, Activity[]>
   >({});
@@ -77,7 +79,8 @@ export const ItineraryView = ({
     if (distance) {
       mapWalkingPaths.push(distance);
       setDistanceByDate((distances) => {
-        const dateDistance = (distances[dateStr] ?? 0) + distance.walking.distance;
+        const dateDistance =
+          (distances[dateStr] ?? 0) + distance.walking.distance;
         return {
           ...distances,
           [dateStr]: dateDistance,
@@ -105,7 +108,8 @@ export const ItineraryView = ({
           return { ...placesDistances, [distaceKey]: distance };
         });
         setDistanceByDate((distances) => {
-          const dateDistance = (distances[dateStr] ?? 0) + distance.walking.distance;
+          const dateDistance =
+            (distances[dateStr] ?? 0) + distance.walking.distance;
           return {
             ...distances,
             [dateStr]: dateDistance,
@@ -139,13 +143,27 @@ export const ItineraryView = ({
           </ThemedText>
           {activities.map((a, i) => (
             <ThemedView key={a.id}>
-              <ThemedView style={[styles.activity, { backgroundColor }]}>
+              <Pressable
+                onPress={() =>
+                  router.push({
+                    pathname: '/views/PlaceDetails',
+                    params: { placeId: a.place.id },
+                  })
+                }
+                style={[styles.activity, { backgroundColor }]}
+              >
+                <IconSymbol
+                  name="mappin"
+                  style={styles.activityImage}
+                  size={40}
+                  color={Colors.red}
+                />
                 <ThemedView style={styles.activityInfo}>
                   <ThemedView>
                     <ThemedText
                       type={TextType.Bold}
                       ellipsizeMode="tail"
-                      numberOfLines={2}
+                      numberOfLines={1}
                     >
                       {a.place.name}
                     </ThemedText>
@@ -160,23 +178,8 @@ export const ItineraryView = ({
                       {utcDate(a.dateTime).format('ddd, DD/MM - HH:mm')}
                     </ThemedText>
                   )}
-                  {(a.website || a.place.website) && (
-                    <ExternalLink
-                      href={(a.website || a.place.website)!}
-                      ellipsizeMode="tail"
-                      numberOfLines={1}
-                    >
-                      {sanitizeUrl((a.website || a.place.website)!)}
-                    </ExternalLink>
-                  )}
                 </ThemedView>
-                <Image
-                  source={{
-                    uri: MapsService.getPhotoForPlace(a.place.images ?? []),
-                  }}
-                  style={styles.activityImage}
-                />
-              </ThemedView>
+              </Pressable>
               {getDistanceBetween(a, activities[i + 1]) && (
                 <ThemedView style={styles.activityDistanceToNext}>
                   <IconSymbol name="figure.walk" color={linkColor} />
@@ -228,7 +231,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   activityImage: {
-    width: '30%',
+    width: '20%',
+    alignSelf: 'center',
   },
   activityDistanceToNext: {
     flexDirection: 'row',

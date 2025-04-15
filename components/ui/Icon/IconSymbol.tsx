@@ -32,6 +32,8 @@ const MAPPING = {
   'train.side.front.car': 'train',
   'train.side.rear.car': 'train',
   'bus.fill': 'bus',
+  'mappin.and.ellipse': 'map-marker',
+  'fork.knife': 'silverware-fork-knife',
 } as Partial<
   Record<
     import('expo-symbols').SymbolViewProps['name'],
