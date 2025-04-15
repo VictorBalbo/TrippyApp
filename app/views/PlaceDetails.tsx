@@ -36,6 +36,7 @@ const PlaceDetails = () => {
   const [needBooking, setNeedBooking] = useState(false);
   const [booked, setBooked] = useState(false);
   const [date, setDate] = useState<Date>();
+  const [isRestaurant, setIsRestaurant] = useState<boolean>();
 
   const fetchPlace = async () => {
     if (placeId && place?.id !== placeId && !loading) {
@@ -50,6 +51,7 @@ const PlaceDetails = () => {
             d.activities?.find((a) => a.placeId === placeId)
           )
         );
+        setIsRestaurant(responsePlace?.categories?.includes('Restaurant'));
         if (responsePlace) {
           fitPlace(responsePlace);
         }
@@ -135,7 +137,7 @@ const PlaceDetails = () => {
             />
           </CardView>
         )}
-        {currentActivity && (
+        {currentActivity && !isRestaurant && (
           <CardView style={styles.inlineTitleInput}>
             <ThemedView style={styles.iconTitle}>
               <IconSymbol name="dollarsign" color={Colors.blue} />

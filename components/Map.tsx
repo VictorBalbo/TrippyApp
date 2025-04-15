@@ -32,11 +32,8 @@ const Map = () => {
   }, [centeredMarkers]);
 
   useEffect(() => {
-    console.log('centeredMarkers selectedMarker', selectedMarker);
-
     if (selectedMarker) {
       const ref = markerRefs.current[selectedMarker.id];
-      console.log('centeredMarkers', ref);
       if (ref) {
         ref.showCallout(); // iOS selection behavior
       }
